@@ -47,7 +47,7 @@
         padding:12px; background:#53d066; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
       }
       .gameover-win {
-        width:250px; height:210px; background:rgba(255,255,255,0.9); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
+        width:250px; height:210px; background:rgba(255,255,255,0.5); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
         font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; backdrop-filter:blur(5px); z-index:2000;
       }
       .gameover-title {
@@ -90,7 +90,7 @@
       .grid .cell {
         width:50px; height:50px;
         box-sizing:border-box;
-        border:1px solid rgba(208,232,88,0.5); /* salad yellow at 50% */
+        border:1px solid rgba(208,232,88,0.5);
         background:transparent;
       }
       .grid .entity {
@@ -123,6 +123,11 @@
       }
       .grid .apple::after {
         content:''; position:absolute; width:12px; height:12px; background:#4ade80; border-radius:0 100% 0 100%; transform:rotate(-45deg); top:-4px; right:5px; z-index:3;
+      }
+
+      .grid .entity.snake-body::before,
+      .grid .entity.snake-body::after {
+        display: none;
       }
 
       /* Disable resizing/drag handles — this is a fixed UI element */
@@ -200,7 +205,8 @@
       let moveInterval = normalInterval; // current movement interval
       let moveTimer = null;
       let running = true;
-      let snakeSegments = []; // track snake body segments
+      let snakeSegments = []; // index 0 = head, last index = backBlock
+      let backBlock = null;  // the last segment (tail), no eyes
       const heldKeys = new Set();
       
       // single step forward according to current direction
@@ -302,6 +308,7 @@
         running = true;
         heldKeys.clear();
         snakeSegments = []; // reset snake body
+        backBlock = null;
         
         // Set speed based on difficulty (150% of base speed)
         switch(currentDifficulty) {
@@ -357,6 +364,10 @@
         // set initial eye direction (moving right)
         entity.classList.add('eyes-right');
         
+        // head is the only segment; it is also the backBlock by default
+        snakeSegments.push(entity);
+        backBlock = entity;
+        
         // add apple at random position
         createApple();
         
@@ -372,8 +383,8 @@
 
         // pick a random cell not occupied by the snake
         const occupied = new Set();
-        grid.querySelectorAll('.entity').forEach(el => {
-          occupied.add(`${el.dataset.col},${el.dataset.row}`);
+        snakeSegments.forEach(seg => {
+          occupied.add(`${seg.dataset.col},${seg.dataset.row}`);
         });
 
         let col, row;
@@ -415,102 +426,90 @@
 
       function moveEntity(dx, dy) {
         const grid = document.getElementById('grid');
-        const entity = grid.querySelector('.entity');
-        if (!entity) return false;
-        const col = parseInt(entity.dataset.col, 10);
-        const row = parseInt(entity.dataset.row, 10);
+        const head = snakeSegments[0];
+        if (!head) return false;
+
+        const col = parseInt(head.dataset.col, 10);
+        const row = parseInt(head.dataset.row, 10);
         const newCol = col + dx;
         const newRow = row + dy;
+
         if (newCol < 0 || newCol > 19 || newRow < 0 || newRow > 15) {
-          if (!isGameOver) {
-            showGameOver();
-            running = false; // stop movement completely
-            return true; // immediate stop
-          }
-          return false; // out of bounds
+          if (!isGameOver) { showGameOver(); running = false; return true; }
+          return false;
         }
-        entity.dataset.col = newCol;
-        entity.dataset.row = newRow;
-        entity.style.gridColumnStart = (newCol + 1).toString();
-        entity.style.gridRowStart = (newRow + 1).toString();
-        
-        // update eye direction based on movement
+
+        // Move tail segment to the new head position (classic snake trick)
+        const tail = snakeSegments[snakeSegments.length - 1];
+        tail.dataset.col = newCol;
+        tail.dataset.row = newRow;
+        tail.style.gridColumnStart = (newCol + 1).toString();
+        tail.style.gridRowStart = (newRow + 1).toString();
+
+        // Rotate array: tail becomes new head
+        snakeSegments.pop();
+        snakeSegments.unshift(tail);
+
+        // Strip eyes from old head, make it a plain body block
+        const oldHead = snakeSegments[1];
+        if (oldHead) {
+          oldHead.classList.remove('eyes-right', 'eyes-left', 'eyes-up', 'eyes-down');
+          oldHead.classList.add('snake-body');
+        }
+
+        // New head gets eye direction
+        tail.classList.remove('snake-body');
         updateEyeDirection(dx, dy);
-        
+
+        // Update backBlock reference
+        backBlock = snakeSegments[snakeSegments.length - 1];
+
         // check collision with apple
         checkAppleCollision();
-        
+
         return true;
       }
       
       function updateEyeDirection(dx, dy) {
-        const entity = document.querySelector('.entity');
-        if (!entity) return;
-        
-        // remove all eye direction classes
-        entity.classList.remove('eyes-right', 'eyes-left', 'eyes-up', 'eyes-down');
-        
-        // add appropriate class based on direction
-        if (dx > 0) {
-          entity.classList.add('eyes-right');
-        } else if (dx < 0) {
-          entity.classList.add('eyes-left');
-        } else if (dy < 0) {
-          entity.classList.add('eyes-up');
-        } else if (dy > 0) {
-          entity.classList.add('eyes-down');
-        }
+        const head = snakeSegments[0];
+        if (!head) return;
+        head.classList.remove('eyes-right', 'eyes-left', 'eyes-up', 'eyes-down');
+        if (dx > 0) head.classList.add('eyes-right');
+        else if (dx < 0) head.classList.add('eyes-left');
+        else if (dy < 0) head.classList.add('eyes-up');
+        else if (dy > 0) head.classList.add('eyes-down');
       }
       
       function growSnake() {
         const grid = document.getElementById('grid');
-        
-        // Add new segment at current head position
-        const newSegment = document.createElement('div');
-        newSegment.className = 'entity snake-body';
-        newSegment.style.width = '45px';
-        newSegment.style.height = '45px';
-        newSegment.style.background = '#53d066';
-        newSegment.style.zIndex = '2';
-        newSegment.style.boxSizing = 'border-box';
-        newSegment.style.borderRadius = '10px';
-        newSegment.style.position = 'relative';
-        newSegment.style.margin = '2.5px';
-        
-        // Get current head position
-        const head = grid.querySelector('.entity');
-        const headCol = parseInt(head.dataset.col, 10);
-        const headRow = parseInt(head.dataset.row, 10);
-        
-        // Place new segment at head position
-        newSegment.dataset.col = headCol;
-        newSegment.dataset.row = headRow;
-        newSegment.style.gridColumnStart = (headCol + 1).toString();
-        newSegment.style.gridRowStart = (headRow + 1).toString();
-        
-        // Move head to next position (will be updated by moveEntity)
-        // The head will naturally move to the next position in the next step
-        
-        grid.appendChild(newSegment);
-        
-        // Update z-index so head stays on top
-        head.style.zIndex = '3';
+        const currentTail = snakeSegments[snakeSegments.length - 1];
+
+        // New body block placed at the current tail's position
+        const newBlock = document.createElement('div');
+        newBlock.className = 'entity snake-body';
+        newBlock.dataset.col = currentTail.dataset.col;
+        newBlock.dataset.row = currentTail.dataset.row;
+        newBlock.style.gridColumnStart = currentTail.style.gridColumnStart;
+        newBlock.style.gridRowStart = currentTail.style.gridRowStart;
+        grid.appendChild(newBlock);
+
+        // Append to segments array — it becomes the new backBlock
+        snakeSegments.push(newBlock);
+        backBlock = newBlock;
       }
       
       function checkAppleCollision() {
-        const grid = document.getElementById('grid');
-        const entity = grid.querySelector('.entity');
-        const apple = grid.querySelector('.apple');
-        
-        if (!entity || !apple) return;
-        
-        const entityCol = parseInt(entity.dataset.col, 10);
-        const entityRow = parseInt(entity.dataset.row, 10);
+        const head = snakeSegments[0];
+        const apple = document.getElementById('grid').querySelector('.apple');
+
+        if (!head || !apple) return;
+
+        const headCol = parseInt(head.dataset.col, 10);
+        const headRow = parseInt(head.dataset.row, 10);
         const appleCol = parseInt(apple.dataset.col, 10);
         const appleRow = parseInt(apple.dataset.row, 10);
-        
-        if (entityCol === appleCol && entityRow === appleRow) {
-          // collision detected - grow snake and respawn apple
+
+        if (headCol === appleCol && headRow === appleRow) {
           growSnake();
           createApple();
         }
