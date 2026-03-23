@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Snakegame</title>
+    <style>
+      :root { --win-w: 1000px; --win-h: 800px; }
+      html,body { height:100%; margin:0; font-family: system-ui, sans-serif; background:#e8f9e8; }
+      .page { padding:0; }
+
+      /* Modal backdrop */
+      .backdrop {
+        position:fixed; inset:0; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; z-index:1000;
+      }
+
+      /* Fake window */
+      .win {
+        width:1000px; /* header (38px) + grid (16*50=800px) = 838px total */
+        height:838px; background:#fff; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column;
+        min-width:1000px; min-height:838px; max-width:1000px; max-height:838px;
+      }
+      .menu-win {
+        width:400px; height:300px; background:#fff; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
+        font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif;
+      }
+      .menu-title {
+        font-size:24px; font-weight:600; margin-bottom:20px; text-align:center;
+      }
+      .menu-buttons {
+        display:flex; flex-direction:column; gap:10px; flex:1;
+      }
+      .menu-button {
+        padding:15px; background:#53d066; color:white; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
+      }
+      .pause-win {
+        width:250px; height:210px; background:rgba(255,255,255,0.5); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
+        font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; backdrop-filter:blur(5px);
+      }
+      .pause-title {
+        font-size:20px; font-weight:600; margin-bottom:20px; text-align:center;
+      }
+      .pause-buttons {
+        display:flex; flex-direction:column; gap:15px; flex:1;
+      }
+      .pause-button {
+        padding:12px; background:#53d066; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
+      }
+      .gameover-win {
+        width:250px; height:210px; background:rgba(255,255,255,0.9); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
+        font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; backdrop-filter:blur(5px); z-index:2000;
+      }
+      .gameover-title {
+        font-size:20px; font-weight:600; margin-bottom:20px; text-align:center; color:#ff4444;
+      }
+      .gameover-buttons {
+        display:flex; flex-direction:column; gap:15px; flex:1;
+      }
+      .gameover-button {
+        padding:12px; background:#ff4444; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
+      }
+      .gameover-button:hover {
+        background:#cc0000;
+      }
+
+      .win-header {
+        height:38px; background:#f2f2f2; display:flex; align-items:center; padding:0 10px; gap:8px; user-select:none;
+      }
+
+      .win-title { flex:1; font-weight:600; font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; }
+      .win-controls { display:flex; gap:6px; }
+      .ctrl { width:14px; height:14px; border-radius:2px; display:inline-block; background:#d0d0d0; }
+      .ctrl.min { background:#ffbd2e; }
+      .ctrl.max { background:#27c93f; }
+      .leaf-icon {
+        width:16px; height:16px; background:#4ade80; border-radius:0 100% 0 100%; transform:rotate(0deg); margin-right:8px;
+      }
+
+      .win-body { flex:1; padding:0; display:flex; align-items:flex-start; justify-content:flex-start; }
+
+      /* Grid: 20 columns x 16 rows */
+      .grid {
+        width:1000px; height:800px; margin:0; padding:0;
+        display:grid;
+        grid-template-columns: repeat(20, 50px);
+        grid-template-rows: repeat(16, 50px);
+        gap:0;
+        background:transparent;
+      }
+      .grid .cell {
+        width:50px; height:50px;
+        box-sizing:border-box;
+        border:1px solid rgba(208,232,88,0.5); /* salad yellow at 50% */
+        background:transparent;
+      }
+      .grid .entity {
+        width:45px; height:45px; background:#53d066; z-index:2; box-sizing:border-box; border-radius:10px; position:relative; margin:2.5px;
+      }
+      .grid .entity::before,
+      .grid .entity::after {
+        content:''; position:absolute; width:6px; height:6px; background:white; border-radius:50%; z-index:3;
+      }
+      .grid .entity::before {
+        top:8px; left:12px;
+      }
+      .grid .entity::after {
+        top:8px; right:12px;
+      }
+      .grid .entity.eyes-right {
+        transform:rotate(90deg);
+      }
+      .grid .entity.eyes-left {
+        transform:rotate(270deg);
+      }
+      .grid .entity.eyes-up {
+        transform:rotate(0deg);
+      }
+      .grid .entity.eyes-down {
+        transform:rotate(180deg);
+      }
+      .grid .apple {
+        width:35px; height:35px; background:#ff4444; z-index:1; box-sizing:border-box; border-radius:50%; position:relative; margin:7.5px;
+      }
+      .grid .apple::after {
+        content:''; position:absolute; width:12px; height:12px; background:#4ade80; border-radius:0 100% 0 100%; transform:rotate(-45deg); top:-4px; right:5px; z-index:3;
+      }
+
+      /* Disable resizing/drag handles — this is a fixed UI element */
+      .win, .win * { box-sizing:border-box; }
+    </style>
+  </head>
+  <body>
+    <div class="page"></div>
+
+    <div id="menu-backdrop" class="backdrop" role="dialog" aria-modal="true" style="display:flex;">
+      <div class="menu-win" role="document" aria-label="Difficulty Menu">
+        <div class="menu-title">Snake Game</div>
+        <div class="menu-buttons">
+          <button class="menu-button" onclick="startGame('easy')">Easy</button>
+          <button class="menu-button" onclick="startGame('normal')">Normal</button>
+          <button class="menu-button" onclick="startGame('hard')">Hard</button>
+          <button class="menu-button" onclick="startGame('impossible')">Impossible</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="gameover-backdrop" class="backdrop" role="dialog" aria-modal="true" style="display:none; z-index:3000;">
+      <div class="gameover-win" role="document" aria-label="Game Over">
+        <div class="gameover-title">You lost!</div>
+        <div class="gameover-buttons">
+          <button class="gameover-button" onclick="retryGame()">RETRY</button>
+          <button class="gameover-button" onclick="quitToMenu()">MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="pause-backdrop" class="backdrop" role="dialog" aria-modal="true" style="display:none; z-index:2000;">
+      <div class="pause-win" role="document" aria-label="Pause Menu">
+        <div class="pause-title">Game Paused</div>
+        <div class="pause-buttons">
+          <button class="pause-button" onclick="quitToMenuFromPause()">QUIT</button>
+          <button class="pause-button" onclick="resumeGame()">RESUME</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="game-backdrop" class="backdrop" role="dialog" aria-modal="true" style="display:none;">
+      <div class="win" role="document" aria-label="Snakegame">
+        <div class="win-header">
+          <div class="win-title">Snakegame</div>
+          <div class="win-controls">
+            <span class="ctrl min"></span>
+            <span class="ctrl max"></span>
+          </div>
+        </div>
+        <div class="win-body">
+          <div id="grid" class="grid" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const menuBackdrop = document.getElementById('menu-backdrop');
+      const gameBackdrop = document.getElementById('game-backdrop');
+      const pauseBackdrop = document.getElementById('pause-backdrop');
+      const gameoverBackdrop = document.getElementById('gameover-backdrop');
+      let currentDifficulty = 'normal';
+      let isPaused = false;
+      let isGameOver = false;
+      let savedGameState = null; // save game state for resume
+      
+      // Speed variables
+      let baseInterval = 333; // base speed for calculation (50% faster)
+      let normalInterval = baseInterval; // 1 square per 0.5 seconds
+      let fastInterval = baseInterval * 0.8; // 20% faster than normal (200% of normal speed)
+      
+      // Movement state: direction and automatic stepping
+      let dir = { x: 1, y: 0 }; // start moving right
+      let nextDir = null; // queued direction change, applied once at next step
+      let moveInterval = normalInterval; // current movement interval
+      let moveTimer = null;
+      let running = true;
+      let snakeSegments = []; // track snake body segments
+      const heldKeys = new Set();
+      
+      // single step forward according to current direction
+      let lastStepTime = 0;
+      
+      function showMenu() {
+        hideGameOver();
+        running = false; // completely stop the game
+        isPaused = true; // prevent any movement
+        menuBackdrop.style.display = 'flex';
+        gameBackdrop.style.display = 'none';
+        pauseBackdrop.style.display = 'none';
+        gameoverBackdrop.style.display = 'none';
+      }
+      
+      function showGame() {
+        menuBackdrop.style.display = 'none';
+        pauseBackdrop.style.display = 'none';
+        gameoverBackdrop.style.display = 'none';
+        running = true; // enable movement for new game
+        isPaused = false;
+        isGameOver = false;
+        gameBackdrop.style.display = 'flex';
+      }
+      
+      function showPause() {
+        pauseBackdrop.style.display = 'flex';
+        isPaused = true;
+      }
+      
+      function hidePause() {
+        pauseBackdrop.style.display = 'none';
+        isPaused = false;
+      }
+      
+      function resumeGame() {
+        hidePause();
+      }
+      
+      function quitToMenuFromPause() {
+        hidePause();
+        running = false; // completely stop the game
+        isPaused = true; // prevent any movement
+        isGameOver = false;
+        savedGameState = null;
+        showMenu();
+      }
+      
+      function quitToMenu() {
+        if (isGameOver) {
+          hideGameOver();
+        } else {
+          hidePause();
+        }
+        running = false; // completely stop the game
+        isPaused = true; // prevent any movement
+        isGameOver = false;
+        savedGameState = null; // clear saved state when going to menu
+        showMenu();
+      }
+      
+      function showGameOver() {
+        if (isGameOver) return; // prevent multiple game overs
+        gameoverBackdrop.style.display = 'flex';
+        isPaused = true;
+        isGameOver = true;
+        if (moveTimer) {
+          clearTimeout(moveTimer);
+          moveTimer = null;
+        }
+      }
+      
+      function hideGameOver() {
+        gameoverBackdrop.style.display = 'none';
+        isPaused = false;
+        isGameOver = false;
+      }
+      
+      
+      function retryGame() {
+        hideGameOver();
+        startGame(currentDifficulty);
+      }
+      
+      function startGame(difficulty) {
+        currentDifficulty = difficulty;
+        initGame();
+        showGame();
+      }
+      
+      function initGame() {
+        // Clear existing grid
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        
+        // Reset movement state
+        dir = { x: 1, y: 0 }; // start moving right
+        nextDir = null;
+        running = true;
+        heldKeys.clear();
+        snakeSegments = []; // reset snake body
+        
+        // Set speed based on difficulty (150% of base speed)
+        switch(currentDifficulty) {
+          case 'easy':
+            normalInterval = baseInterval * 1.5; // 500ms (150% of base)
+            fastInterval = baseInterval * 1.35; // 417ms
+            break;
+          case 'normal':
+            normalInterval = baseInterval; // 333ms (100% of base)
+            fastInterval = baseInterval * 0.85; // 283ms
+            break;
+          case 'hard':
+            normalInterval = baseInterval * 0.75; // 250ms (75% of base)
+            fastInterval = baseInterval * 0.65; // 217ms
+            break;
+          case 'impossible':
+            normalInterval = baseInterval * 0.5; // 167ms (50% of base)
+            fastInterval = baseInterval * 0.4; // 133ms
+            break;
+        }
+        
+        moveInterval = normalInterval;
+        
+        // generate 20x16 grid cells once
+        for (let r = 0; r < 16; r++) {
+          for (let c = 0; c < 20; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            grid.appendChild(cell);
+          }
+        }
+
+        // add a red entity centered in the grid, then move it up 1 and left 2
+        const centerCol = Math.floor(20 / 2); // 10
+        const centerRow = Math.floor(16 / 2); // 8
+        // apply moves: previous move was (-2, -1). Now apply (+1, -1) => net (-1, -2)
+        let entityCol = centerCol - 1; // move 1 left from center
+        let entityRow = centerRow - 2; // move 2 up from center
+        // clamp to bounds
+        entityCol = Math.max(0, Math.min(19, entityCol));
+        entityRow = Math.max(0, Math.min(15, entityRow));
+        const entity = document.createElement('div');
+        entity.className = 'entity';
+        entity.dataset.row = entityRow;
+        entity.dataset.col = entityCol;
+        // grid is 1-based for placement
+        entity.style.gridColumnStart = (entityCol + 1).toString();
+        entity.style.gridRowStart = (entityRow + 1).toString();
+        grid.appendChild(entity);
+        
+        // set initial eye direction (moving right)
+        entity.classList.add('eyes-right');
+        
+        // add apple at random position
+        createApple();
+        
+        // Start movement - ensure snake starts moving immediately
+        startMoving();
+      }
+      
+      function createApple() {
+        const grid = document.getElementById('grid');
+        // remove existing apple
+        const existing = grid.querySelector('.apple');
+        if (existing) existing.remove();
+
+        // pick a random cell not occupied by the snake
+        const occupied = new Set();
+        grid.querySelectorAll('.entity').forEach(el => {
+          occupied.add(`${el.dataset.col},${el.dataset.row}`);
+        });
+
+        let col, row;
+        do {
+          col = Math.floor(Math.random() * 20);
+          row = Math.floor(Math.random() * 16);
+        } while (occupied.has(`${col},${row}`));
+
+        const apple = document.createElement('div');
+        apple.className = 'apple';
+        apple.dataset.col = col;
+        apple.dataset.row = row;
+        apple.style.gridColumnStart = (col + 1).toString();
+        apple.style.gridRowStart = (row + 1).toString();
+        grid.appendChild(apple);
+      }
+
+      function keyToDir(key) {
+        if (!key) return null;
+        // Handle ESC key for pause
+        if (key === 'Escape') {
+          if (gameBackdrop.style.display !== 'none' && !isPaused) {
+            showPause();
+          }
+          return null;
+        }
+        switch (key) {
+          case 'ArrowUp': return { x: 0, y: -1 };
+          case 'ArrowDown': return { x: 0, y: 1 };
+          case 'ArrowLeft': return { x: -1, y: 0 };
+          case 'ArrowRight': return { x: 1, y: 0 };
+          case 'w': case 'W': return { x: 0, y: -1 };
+          case 's': case 'S': return { x: 0, y: 1 };
+          case 'a': case 'A': return { x: -1, y: 0 };
+          case 'd': case 'D': return { x: 1, y: 0 };
+        }
+        return null;
+      }
+
+      function moveEntity(dx, dy) {
+        const grid = document.getElementById('grid');
+        const entity = grid.querySelector('.entity');
+        if (!entity) return false;
+        const col = parseInt(entity.dataset.col, 10);
+        const row = parseInt(entity.dataset.row, 10);
+        const newCol = col + dx;
+        const newRow = row + dy;
+        if (newCol < 0 || newCol > 19 || newRow < 0 || newRow > 15) {
+          if (!isGameOver) {
+            showGameOver();
+            running = false; // stop movement completely
+            return true; // immediate stop
+          }
+          return false; // out of bounds
+        }
+        entity.dataset.col = newCol;
+        entity.dataset.row = newRow;
+        entity.style.gridColumnStart = (newCol + 1).toString();
+        entity.style.gridRowStart = (newRow + 1).toString();
+        
+        // update eye direction based on movement
+        updateEyeDirection(dx, dy);
+        
+        // check collision with apple
+        checkAppleCollision();
+        
+        return true;
+      }
+      
+      function updateEyeDirection(dx, dy) {
+        const entity = document.querySelector('.entity');
+        if (!entity) return;
+        
+        // remove all eye direction classes
+        entity.classList.remove('eyes-right', 'eyes-left', 'eyes-up', 'eyes-down');
+        
+        // add appropriate class based on direction
+        if (dx > 0) {
+          entity.classList.add('eyes-right');
+        } else if (dx < 0) {
+          entity.classList.add('eyes-left');
+        } else if (dy < 0) {
+          entity.classList.add('eyes-up');
+        } else if (dy > 0) {
+          entity.classList.add('eyes-down');
+        }
+      }
+      
+      function growSnake() {
+        const grid = document.getElementById('grid');
+        
+        // Add new segment at current head position
+        const newSegment = document.createElement('div');
+        newSegment.className = 'entity snake-body';
+        newSegment.style.width = '45px';
+        newSegment.style.height = '45px';
+        newSegment.style.background = '#53d066';
+        newSegment.style.zIndex = '2';
+        newSegment.style.boxSizing = 'border-box';
+        newSegment.style.borderRadius = '10px';
+        newSegment.style.position = 'relative';
+        newSegment.style.margin = '2.5px';
+        
+        // Get current head position
+        const head = grid.querySelector('.entity');
+        const headCol = parseInt(head.dataset.col, 10);
+        const headRow = parseInt(head.dataset.row, 10);
+        
+        // Place new segment at head position
+        newSegment.dataset.col = headCol;
+        newSegment.dataset.row = headRow;
+        newSegment.style.gridColumnStart = (headCol + 1).toString();
+        newSegment.style.gridRowStart = (headRow + 1).toString();
+        
+        // Move head to next position (will be updated by moveEntity)
+        // The head will naturally move to the next position in the next step
+        
+        grid.appendChild(newSegment);
+        
+        // Update z-index so head stays on top
+        head.style.zIndex = '3';
+      }
+      
+      function checkAppleCollision() {
+        const grid = document.getElementById('grid');
+        const entity = grid.querySelector('.entity');
+        const apple = grid.querySelector('.apple');
+        
+        if (!entity || !apple) return;
+        
+        const entityCol = parseInt(entity.dataset.col, 10);
+        const entityRow = parseInt(entity.dataset.row, 10);
+        const appleCol = parseInt(apple.dataset.col, 10);
+        const appleRow = parseInt(apple.dataset.row, 10);
+        
+        if (entityCol === appleCol && entityRow === appleRow) {
+          // collision detected - grow snake and respawn apple
+          growSnake();
+          createApple();
+        }
+      }
+
+      function step() {
+        if (!running || isPaused || isGameOver) return;
+        
+        // apply one queued turn per step (prevents rapid multi-turns between steps)
+        if (nextDir) {
+          dir = nextDir;
+          nextDir = null;
+        }
+        const ok = moveEntity(dir.x, dir.y);
+        const now = performance.now();
+        if (!ok) {
+          // blocked by boundary — don't stop the game; allow player to turn and continue
+          console.log('Blocked at boundary');
+          lastStepTime = now;
+          return;
+        }
+        lastStepTime = now;
+      }
+
+      // scheduler using setTimeout and lastStepTime to avoid pauses when changing speed
+      // if `force` is true, schedule the next step immediately
+      function scheduleNext(force = false) {
+        const now = performance.now();
+        if (force) {
+          if (moveTimer) clearTimeout(moveTimer);
+          moveTimer = setTimeout(() => {
+            step();
+            scheduleNext();
+          }, 0);
+          return;
+        }
+        const elapsed = now - lastStepTime;
+        const delay = Math.max(0, moveInterval - elapsed);
+        if (moveTimer) clearTimeout(moveTimer);
+        moveTimer = setTimeout(() => {
+          step();
+          scheduleNext();
+        }, delay);
+      }
+
+      function setIntervalRate(ms) {
+        if (moveInterval === ms) return;
+        moveInterval = ms;
+        if (moveTimer) scheduleNext();
+      }
+
+      function startMoving() {
+        if (moveTimer) clearTimeout(moveTimer);
+        lastStepTime = performance.now();
+        scheduleNext(true); // force immediate start
+      }
+
+      function processHeldKeys() {
+        // accelerate if any held key matches current direction or queued nextDir
+        for (const k of heldKeys) {
+          const kd = keyToDir(k);
+          if (!kd) continue;
+          if (kd.x === dir.x && kd.y === dir.y) { setIntervalRate(fastInterval); return; }
+          if (nextDir && kd.x === nextDir.x && kd.y === nextDir.y) { setIntervalRate(fastInterval); return; }
+        }
+        setIntervalRate(normalInterval);
+      }
+
+      // key handling for turning (WASD + arrows). Only allow 90° turns — disallow direct reverse.
+      function handleKey(e) {
+        const k = e.key;
+        const requested = keyToDir(k);
+        if (requested) {
+          // record held direction key
+          heldKeys.add(k);
+        }
+
+        if (!requested) return;
+
+        // determine target direction candidate
+        const nx = requested.x, ny = requested.y;
+
+        // ignore if requested direction is exactly reverse of current (disallow 180°)
+        if (nx === -dir.x && ny === -dir.y) {
+          // ignore this keypress for direction changes, but still track held state
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+
+        // if there's already a queued change this step, ignore further queued changes
+        if (!nextDir) {
+          // also disallow queuing a direction that would be reverse of the queued direction
+          if (!(nx === -dir.x && ny === -dir.y)) {
+            nextDir = { x: nx, y: ny };
+          }
+        }
+
+        // update speed depending on held keys
+        processHeldKeys();
+
+        // prevent browser default for handled keys
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      // release handling: remove from heldKeys and recompute speed
+      window.addEventListener('keyup', (e) => {
+        if (heldKeys.has(e.key)) {
+          heldKeys.delete(e.key);
+          processHeldKeys();
+        }
+      }, true);
+
+      // Register keyboard input
+      window.addEventListener('keydown', handleKey, true);
+
+      // Prevent closing: block clicks only on the backdrop itself, not its children
+      menuBackdrop.addEventListener('click', (e) => { if (e.target === menuBackdrop) { e.stopPropagation(); e.preventDefault(); } });
+      gameBackdrop.addEventListener('click', (e) => { if (e.target === gameBackdrop) { e.stopPropagation(); e.preventDefault(); } });
+
+      // Initialize menu
+      showMenu();
+    </script>

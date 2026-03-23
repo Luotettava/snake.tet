@@ -1,0 +1,12 @@
+{
+  "name": "snake-tet",
+  "version": "1.0.0",
+  "description": "Serve the HTML app and open it in the browser",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
