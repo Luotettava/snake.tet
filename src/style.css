@@ -1,0 +1,94 @@
+:root { --win-w: 1000px; --win-h: 800px; }
+html,body { height:100%; margin:0; font-family: system-ui, sans-serif; background:#e8f9e8; }
+.page { padding:0; }
+
+.backdrop {
+  position:fixed; inset:0; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; z-index:1000;
+}
+
+.win {
+  width:1000px;
+  height:838px; background:#fff; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column;
+  min-width:1000px; min-height:838px; max-width:1000px; max-height:838px;
+}
+.menu-win {
+  width:400px; height:300px; background:#fff; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
+  font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif;
+}
+.menu-title { font-size:24px; font-weight:600; margin-bottom:20px; text-align:center; }
+.menu-buttons { display:flex; flex-direction:column; gap:10px; flex:1; }
+.menu-button {
+  padding:15px; background:#53d066; color:white; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
+}
+
+.pause-win {
+  width:250px; height:210px; background:rgba(255,255,255,0.5); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
+  font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; backdrop-filter:blur(5px);
+}
+.pause-title { font-size:20px; font-weight:600; margin-bottom:20px; text-align:center; }
+.pause-buttons { display:flex; flex-direction:column; gap:15px; flex:1; }
+.pause-button {
+  padding:12px; background:#53d066; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
+}
+
+.gameover-win {
+  width:250px; height:210px; background:rgba(255,255,255,0.5); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
+  font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; backdrop-filter:blur(5px); z-index:2000;
+}
+.gameover-title { font-size:20px; font-weight:600; margin-bottom:20px; text-align:center; color:#ff4444; }
+.gameover-buttons { display:flex; flex-direction:column; gap:15px; flex:1; }
+.gameover-button {
+  padding:12px; background:#ff4444; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
+}
+.gameover-button:hover { background:#cc0000; }
+
+.win-header {
+  height:38px; background:#f2f2f2; display:flex; align-items:center; padding:0 10px; gap:8px; user-select:none;
+}
+.win-title { flex:1; font-weight:600; font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; }
+.win-controls { display:flex; gap:6px; }
+.ctrl { width:14px; height:14px; border-radius:2px; display:inline-block; background:#d0d0d0; }
+.ctrl.min { background:#ffbd2e; }
+.ctrl.max { background:#27c93f; }
+.leaf-icon {
+  width:16px; height:16px; background:#4ade80; border-radius:0 100% 0 100%; transform:rotate(0deg); margin-right:8px;
+}
+.win-body { flex:1; padding:0; display:flex; align-items:flex-start; justify-content:flex-start; }
+
+.grid {
+  width:1000px; height:800px; margin:0; padding:0;
+  display:grid;
+  grid-template-columns: repeat(20, 50px);
+  grid-template-rows: repeat(16, 50px);
+  gap:0;
+  background:transparent;
+}
+.grid .cell {
+  width:50px; height:50px;
+  box-sizing:border-box;
+  border:1px solid rgba(208,232,88,0.5);
+  background:transparent;
+}
+.grid .entity {
+  width:45px; height:45px; background:#53d066; z-index:2; box-sizing:border-box; border-radius:10px; position:relative; margin:2.5px;
+}
+.grid .entity::before,
+.grid .entity::after {
+  content:''; position:absolute; width:6px; height:6px; background:white; border-radius:50%; z-index:3;
+}
+.grid .entity::before { top:8px; left:12px; }
+.grid .entity::after { top:8px; right:12px; }
+.grid .entity.eyes-right { transform:rotate(90deg); }
+.grid .entity.eyes-left { transform:rotate(270deg); }
+.grid .entity.eyes-up { transform:rotate(0deg); }
+.grid .entity.eyes-down { transform:rotate(180deg); }
+.grid .apple {
+  width:35px; height:35px; background:#ff4444; z-index:1; box-sizing:border-box; border-radius:50%; position:relative; margin:7.5px;
+}
+.grid .apple::after {
+  content:''; position:absolute; width:12px; height:12px; background:#4ade80; border-radius:0 100% 0 100%; transform:rotate(-45deg); top:-4px; right:5px; z-index:3;
+}
+.grid .entity.snake-body::before,
+.grid .entity.snake-body::after { display:none; }
+
+.win, .win * { box-sizing:border-box; }
