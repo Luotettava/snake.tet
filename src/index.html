@@ -8,8 +8,9 @@
   <body>
     <div class="page"></div>
 
-    <div id="menu-backdrop" class="backdrop" role="dialog" aria-modal="true" style="display:flex;">
+    <div id="menu-backdrop" class="backdrop" role="dialog" aria-modal="true" style="display:none;">
       <div class="menu-win" role="document" aria-label="Difficulty Menu">
+        <button class="menu-close" onclick="showInfo()" aria-label="Info">✕</button>
         <div class="menu-title">Snake Game</div>
         <div class="menu-buttons">
           <button class="menu-button" onclick="startGame('easy')">Easy</button>
@@ -20,9 +21,59 @@
       </div>
     </div>
 
+    <div id="info-backdrop" class="backdrop info-fullscreen" role="dialog" aria-modal="true" style="display:flex; z-index:1500;">
+      <button class="info-nav-button" onclick="hideInfo()">
+        <svg class="snake-logo" viewBox="0 0 192 36" aria-hidden="true">
+          <!-- Row 0 -->
+                              <rect x="12" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="24" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="36" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="48" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+                                                          <rect x="84" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="96" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="108" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="120" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+                                                          <rect x="156" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="168" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="180" y="0" width="12" height="12" rx="2" fill="#53d066"/>
+          <!-- Row 1 -->
+                              <rect x="12" y="12" width="12" height="12" rx="2" fill="#53d066"/>
+                                                          <rect x="48" y="12" width="12" height="12" rx="2" fill="#53d066"/>
+                                                          <rect x="84" y="12" width="12" height="12" rx="2" fill="#53d066"/>
+                                                          <rect x="120" y="12" width="12" height="12" rx="2" fill="#53d066"/>
+                                                          <rect x="156" y="12" width="12" height="12" rx="2" fill="#53d066"/>
+          <!-- Row 2 -->
+          <rect x="0" y="24" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="12" y="24" width="12" height="12" rx="2" fill="#53d066"/>
+                                                          <rect x="48" y="24" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="60" y="24" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="72" y="24" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="84" y="24" width="12" height="12" rx="2" fill="#53d066"/>
+                                                          <rect x="120" y="24" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="132" y="24" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="144" y="24" width="12" height="12" rx="2" fill="#53d066"/>
+          <rect x="156" y="24" width="12" height="12" rx="2" fill="#53d066"/>
+          <!-- eyes on head (top-right segment at col 15, row 0) -->
+          <circle cx="184" cy="3" r="1.5" fill="white"/>
+          <circle cx="188" cy="3" r="1.5" fill="white"/>
+        </svg>
+      </button>
+      <button class="info-nav-button disabled" disabled></button>
+      <button class="info-nav-button disabled" disabled></button>
+      <button class="info-nav-button disabled" disabled></button>
+      <button class="info-nav-button disabled" disabled></button>
+      <button class="info-nav-button disabled" disabled></button>
+      <button class="info-nav-button disabled" disabled></button>
+      <button class="info-nav-button disabled" disabled></button>
+      <button class="info-nav-button disabled" disabled></button>
+      <button class="info-nav-button disabled" disabled></button>
+    </div>
+
     <div id="gameover-backdrop" class="backdrop" role="dialog" aria-modal="true" style="display:none; z-index:3000;">
       <div class="gameover-win" role="document" aria-label="Game Over">
         <div class="gameover-title">You lost!</div>
+        <div id="gameover-score" class="best-score"></div>
+        <div id="gameover-best" class="best-score"></div>
         <div class="gameover-buttons">
           <button class="gameover-button" onclick="retryGame()">RETRY</button>
           <button class="gameover-button" onclick="quitToMenu()">MENU</button>
@@ -33,6 +84,7 @@
     <div id="pause-backdrop" class="backdrop" role="dialog" aria-modal="true" style="display:none; z-index:2000;">
       <div class="pause-win" role="document" aria-label="Pause Menu">
         <div class="pause-title">Game Paused</div>
+        <div id="pause-best" class="best-score"></div>
         <div class="pause-buttons">
           <button class="pause-button" onclick="quitToMenuFromPause()">QUIT</button>
           <button class="pause-button" onclick="resumeGame()">RESUME</button>
@@ -44,6 +96,10 @@
       <div class="win" role="document" aria-label="Snakegame">
         <div class="win-header">
           <div class="win-title">Snakegame</div>
+          <div class="win-stats">
+            <span id="score-display">Score: 0</span>
+            <span id="timer-display">0:00</span>
+          </div>
           <div class="win-controls">
             <span class="ctrl min"></span>
             <span class="ctrl max"></span>

@@ -1,5 +1,5 @@
 :root { --win-w: 1000px; --win-h: 800px; }
-html,body { height:100%; margin:0; font-family: system-ui, sans-serif; background:#e8f9e8; }
+html,body { height:100%; margin:0; font-family: system-ui, sans-serif; background:#cccccc; }
 .page { padding:0; }
 
 .backdrop {
@@ -8,14 +8,100 @@ html,body { height:100%; margin:0; font-family: system-ui, sans-serif; backgroun
 
 .win {
   width:1000px;
-  height:838px; background:#fff; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column;
+  height:838px; background:rgba(255,255,255,0.25); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column;
   min-width:1000px; min-height:838px; max-width:1000px; max-height:838px;
 }
 .menu-win {
-  width:400px; height:300px; background:#fff; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
+  width:400px; height:300px; background:rgba(255,255,255,0.5); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px; position:relative;
   font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif;
 }
-.menu-title { font-size:24px; font-weight:600; margin-bottom:20px; text-align:center; }
+.menu-close {
+  position:absolute; top:8px; right:8px;
+  width:20px; height:20px; background:#ff4444; color:white; border:none; border-radius:3px;
+  font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1;
+}
+.info-fullscreen {
+  background-color: #f5f0e8 !important;
+  background-image:
+    /* red margin line */
+    linear-gradient(to right, transparent 78px, #e88e8e 78px, #e88e8e 80px, transparent 80px),
+    /* horizontal ruled lines */
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px, transparent 38px,
+      #b8d4e8 38px, #b8d4e8 40px
+    );
+  background-position: 0 0, 0 0;
+  background-size: 100% 100%, 100% 40px;
+  background-repeat: repeat, repeat;
+  background-attachment: local, local;
+  backdrop-filter: none;
+  align-items: stretch;
+  justify-content: flex-start;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 30px 30px 30px 200px;
+  box-sizing: border-box;
+  gap: 40px;
+  position: relative;
+}
+/* crumpled paper texture overlay — SVG-based realistic creases */
+.info-fullscreen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' seed='2' stitchTiles='stitch'/%3E%3CfeDiffuseLighting surfaceScale='3' diffuseConstant='0.8'%3E%3CfeDistantLight azimuth='135' elevation='45'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E") repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+/* keep buttons above the texture overlay */
+.info-fullscreen > * {
+  position: relative;
+  z-index: 2;
+}
+/* notebook holes + torn left edge */
+.info-fullscreen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  min-height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  /* SVG tile: 60px wide, 100px tall — one hole per tile + torn right edge */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='100'%3E%3Cdefs%3E%3CclipPath id='h'%3E%3Crect x='38' y='0' width='22' height='100'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d='M0,0 L42,0 L44,2 L40,5 L43,9 L39,12 L42,16 L38,19 L41,22 L37,26 L42,29 L39,32 L43,36 L38,39 L41,42 L37,46 L42,49 L40,52 L44,56 L39,59 L42,62 L38,66 L41,69 L37,72 L43,76 L40,79 L44,82 L38,86 L42,89 L39,92 L43,96 L40,100 L0,100 Z' fill='%23cccccc'/%3E%3Cpath d='M44,2 L40,5 L43,9 L39,12 L42,16 L38,19 L41,22 L37,26 L42,29 L39,32 L43,36 L38,39 L41,42 L37,46 L42,49 L40,52 L44,56 L39,59 L42,62 L38,66 L41,69 L37,72 L43,76 L40,79 L44,82 L38,86 L42,89 L39,92 L43,96 L40,100' fill='none' stroke='none'/%3E%3Cg clip-path='url(%23h)'%3E%3Ccircle cx='38' cy='50' r='10' fill='%23cccccc' stroke='none'/%3E%3C/g%3E%3C/svg%3E") repeat-y;
+  background-size: 60px 100px;
+}
+.info-nav-button {
+  width: 100%; padding: 60px 0; background: rgba(255,255,255,0.3); border: none;
+  border-radius: 6px; font-size: 0; cursor: pointer;
+  transition: background 0.2s ease; flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  backdrop-filter: blur(5px);
+  position: relative;
+  overflow: hidden;
+}
+.info-nav-button:hover:not(.disabled) { background: rgba(255,255,255,0.7); }
+.info-nav-button.disabled {
+  opacity: 0.3; cursor: not-allowed;
+}
+.snake-logo {
+  width: 900px;
+  height: 170px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) translate(-340px, 20px);
+  pointer-events: none;
+}.menu-title { font-size:24px; font-weight:600; margin-bottom:20px; text-align:center; }
 .menu-buttons { display:flex; flex-direction:column; gap:10px; flex:1; }
 .menu-button {
   padding:15px; background:#53d066; color:white; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
@@ -36,16 +122,18 @@ html,body { height:100%; margin:0; font-family: system-ui, sans-serif; backgroun
   font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; backdrop-filter:blur(5px); z-index:2000;
 }
 .gameover-title { font-size:20px; font-weight:600; margin-bottom:20px; text-align:center; color:#ff4444; }
-.gameover-buttons { display:flex; flex-direction:column; gap:15px; flex:1; }
+.gameover-buttons { display:flex; flex-direction:column; gap:20px; flex:1; }
 .gameover-button {
-  padding:12px; background:#ff4444; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
+  padding:0; height:53px; background:#ff4444; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
 }
 .gameover-button:hover { background:#cc0000; }
+.best-score { font-size:13px; font-weight:600; text-align:center; color:#555; margin-bottom:8px; font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; }
 
 .win-header {
   height:38px; background:#f2f2f2; display:flex; align-items:center; padding:0 10px; gap:8px; user-select:none;
 }
 .win-title { flex:1; font-weight:600; font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; }
+.win-stats { display:flex; gap:16px; font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; font-size:13px; font-weight:600; color:#555; margin-right:12px; }
 .win-controls { display:flex; gap:6px; }
 .ctrl { width:14px; height:14px; border-radius:2px; display:inline-block; background:#d0d0d0; }
 .ctrl.min { background:#ffbd2e; }
@@ -90,5 +178,54 @@ html,body { height:100%; margin:0; font-family: system-ui, sans-serif; backgroun
 }
 .grid .entity.snake-body::before,
 .grid .entity.snake-body::after { display:none; }
+
+.grid .entity.snake-tail::before,
+.grid .entity.snake-tail::after { display:none; }
+
+/* tail triangle — one clip-path per direction, no transform needed */
+.grid .entity.snake-tail {
+  border-radius: 0;
+  transform: none !important;   /* override any leftover eyes-* transform */
+}
+/* pointy tip faces DOWN (away from body), big side at TOP (toward body) */
+.grid .entity.snake-tail.tail-up {
+  clip-path: polygon(
+    6% 12%, 12% 0%, 88% 0%, 94% 12%,
+    56% 98%, 44% 98%
+  );
+}
+/* pointy tip faces UP, big side at BOTTOM */
+.grid .entity.snake-tail.tail-down {
+  clip-path: polygon(
+    44% 2%, 56% 2%,
+    94% 88%, 88% 100%, 12% 100%, 6% 88%
+  );
+}
+/* pointy tip faces LEFT, big side at RIGHT */
+.grid .entity.snake-tail.tail-right {
+  clip-path: polygon(
+    88% 6%, 100% 12%, 100% 88%, 88% 94%,
+    2% 56%, 2% 44%
+  );
+}
+/* pointy tip faces RIGHT, big side at LEFT */
+.grid .entity.snake-tail.tail-left {
+  clip-path: polygon(
+    12% 6%, 98% 44%, 98% 56%, 12% 94%,
+    0% 88%, 0% 12%
+  );
+}
+
+@keyframes shake {
+  0%   { margin-left: 0; }
+  20%  { margin-left: -6px; }
+  40%  { margin-left: 6px; }
+  60%  { margin-left: -6px; }
+  80%  { margin-left: 6px; }
+  100% { margin-left: 0; }
+}
+.entity.collide {
+  animation: shake 0.4s ease;
+}
 
 .win, .win * { box-sizing:border-box; }
