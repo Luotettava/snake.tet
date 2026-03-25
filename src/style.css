@@ -744,3 +744,35 @@ body.show-notebook::after {
 @media (hover: none) and (pointer: coarse) {
   .mobile-pause-btn { display: inline-block; }
 }
+
+/* Chess */
+.chess-win {
+  width: 620px; min-width: 620px; max-width: 620px;
+  height: 658px; min-height: 658px; max-height: 658px;
+}
+.chess-body { align-items: center; justify-content: center; }
+.chess-board {
+  display: grid;
+  grid-template-columns: repeat(8, 72px);
+  grid-template-rows: repeat(8, 72px);
+  border: 3px solid #333;
+}
+.chess-cell {
+  width: 72px; height: 72px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; user-select: none;
+  transition: background 0.1s;
+  padding: 6px;
+}
+.chess-cell.light { background: #f0d9b5; }
+.chess-cell.dark { background: #b58863; }
+.chess-cell.selected { box-shadow: inset 0 0 0 4px rgba(80,180,80,0.7); }
+.chess-cell.legal-move { box-shadow: inset 0 0 0 100px rgba(100,200,100,0.25), inset 0 0 0 3px rgba(80,180,80,0.6); }
+.chess-cell.last-move { box-shadow: inset 0 0 0 3px rgba(255,255,0,0.4); }
+.chess-cell.in-check { box-shadow: inset 0 0 0 3px rgba(255,0,0,0.6); }
+
+@media (max-width: 620px) {
+  .chess-win { width: 96vw !important; min-width: auto !important; max-width: 96vw !important; height: auto !important; min-height: auto !important; max-height: 96vh !important; }
+  .chess-board { grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); width: 90vw; }
+  .chess-cell { width: auto; height: auto; aspect-ratio: 1; padding: 4px; }
+}

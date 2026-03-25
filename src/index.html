@@ -80,8 +80,14 @@
         <canvas id="breakout-logo-canvas" class="tetris-logo-canvas"></canvas>
         <span class="logo-title">PING PONG</span>
       </button>
-      <button class="info-nav-button" onclick="showGenericMenu()"></button>
-      <button class="info-nav-button" onclick="showGenericMenu()"></button>
+      <button class="info-nav-button" onclick="showChessMenu()">
+        <canvas id="chess-logo-canvas" class="tetris-logo-canvas"></canvas>
+        <span class="logo-title">CHESS</span>
+      </button>
+      <button class="info-nav-button" onclick="showCheckersMenu()">
+        <canvas id="checkers-logo-canvas" class="tetris-logo-canvas"></canvas>
+        <span class="logo-title">CHECKERS</span>
+      </button>
       <button class="info-nav-button" onclick="showGenericMenu()"></button>
       <button class="info-nav-button" onclick="showGenericMenu()"></button>
       <button class="info-nav-button" onclick="showGenericMenu()"></button>
@@ -192,6 +198,128 @@
               <button id="breakout-retry-btn" class="gameover-button" onclick="retryBreakout()">RETRY</button>
               <button id="breakout-next-btn" class="gamewin-button" onclick="nextBreakoutLevel()" style="display:none">NEXT LEVEL</button>
               <button class="gameover-button" onclick="quitBreakout()">MENU</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="chess-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="menu-win" role="document" aria-label="Chess Menu">
+        <button class="menu-close" onclick="hideChessMenu()" aria-label="Back">✕</button>
+        <div class="menu-title">CHESS</div>
+        <div class="menu-buttons">
+          <button class="menu-button" onclick="startChess('easy')">Easy</button>
+          <button class="menu-button" onclick="startChess('normal')">Normal</button>
+          <button class="menu-button" onclick="startChess('hard')">Hard</button>
+          <button class="menu-button" onclick="startChess('impossible')">Impossible</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="chess-color-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="menu-win" role="document" aria-label="Choose Color">
+        <button class="menu-close" onclick="hideChessColor()" aria-label="Back">✕</button>
+        <div class="menu-title">PLAY AS</div>
+        <div class="menu-buttons">
+          <button class="menu-button" onclick="startChessColor('w')" style="background:#f0d9b5;color:#333">♔ White</button>
+          <button class="menu-button" onclick="startChessColor('b')" style="background:#333;color:#f0d9b5">♚ Black</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="chess-game-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="win chess-win" role="document" aria-label="Chess">
+        <div class="win-header">
+          <div class="win-title">CHESS</div>
+          <div class="win-stats">
+            <span id="chess-status">Your turn (White)</span>
+          </div>
+          <div class="win-controls">
+            <button class="mobile-pause-btn" onclick="mobilePauseChess()" aria-label="Pause">☰</button>
+            <span class="ctrl min"></span>
+            <span class="ctrl max"></span>
+          </div>
+        </div>
+        <div class="win-body chess-body">
+          <div id="chess-board" class="chess-board"></div>
+        </div>
+        <div id="chess-pause-overlay" class="tetris-overlay" style="display:none;">
+          <div class="pause-win">
+            <div class="pause-title">Game Paused</div>
+            <div class="pause-buttons">
+              <button class="pause-button" onclick="quitChess()">QUIT</button>
+              <button class="pause-button" onclick="resumeChess()">RESUME</button>
+            </div>
+          </div>
+        </div>
+        <div id="chess-result-overlay" class="tetris-overlay" style="display:none;">
+          <div id="chess-result-win" class="gameover-win">
+            <div id="chess-result-title" class="gameover-title"></div>
+            <div class="gameover-buttons">
+              <button id="chess-retry-btn" class="gameover-button" onclick="retryChess()">RETRY</button>
+              <button class="gameover-button" onclick="quitChess()">MENU</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="checkers-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="menu-win" role="document" aria-label="Checkers Menu">
+        <button class="menu-close" onclick="hideCheckersMenu()" aria-label="Back">✕</button>
+        <div class="menu-title">CHECKERS</div>
+        <div class="menu-buttons">
+          <button class="menu-button" onclick="startCheckers('easy')">Easy</button>
+          <button class="menu-button" onclick="startCheckers('normal')">Normal</button>
+          <button class="menu-button" onclick="startCheckers('hard')">Hard</button>
+          <button class="menu-button" onclick="startCheckers('impossible')">Impossible</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="checkers-color-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="menu-win" role="document" aria-label="Choose Color">
+        <button class="menu-close" onclick="hideCheckersColor()" aria-label="Back">✕</button>
+        <div class="menu-title">PLAY AS</div>
+        <div class="menu-buttons">
+          <button class="menu-button" onclick="startCheckersColor('r')" style="background:#f0d9b5;color:#333">● White</button>
+          <button class="menu-button" onclick="startCheckersColor('b')" style="background:#222;color:#fff">● Black</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="checkers-game-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="win chess-win" role="document" aria-label="Checkers">
+        <div class="win-header">
+          <div class="win-title">CHECKERS</div>
+          <div class="win-stats">
+            <span id="checkers-status">Your turn</span>
+          </div>
+          <div class="win-controls">
+            <button class="mobile-pause-btn" onclick="mobilePauseCheckers()" aria-label="Pause">☰</button>
+            <span class="ctrl min"></span>
+            <span class="ctrl max"></span>
+          </div>
+        </div>
+        <div class="win-body chess-body">
+          <div id="checkers-board" class="chess-board"></div>
+        </div>
+        <div id="checkers-pause-overlay" class="tetris-overlay" style="display:none;">
+          <div class="pause-win">
+            <div class="pause-title">Game Paused</div>
+            <div class="pause-buttons">
+              <button class="pause-button" onclick="quitCheckers()">QUIT</button>
+              <button class="pause-button" onclick="resumeCheckers()">RESUME</button>
+            </div>
+          </div>
+        </div>
+        <div id="checkers-result-overlay" class="tetris-overlay" style="display:none;">
+          <div class="gameover-win">
+            <div id="checkers-result-title" class="gameover-title"></div>
+            <div class="gameover-buttons">
+              <button id="checkers-retry-btn" class="gameover-button" onclick="retryCheckers()">RETRY</button>
+              <button class="gameover-button" onclick="quitCheckers()">MENU</button>
             </div>
           </div>
         </div>

@@ -7,6 +7,8 @@ window.showInfo = () => {
   if (window.generateTetrisLogo) setTimeout(window.generateTetrisLogo, 50);
   if (window.generateTttLogo) setTimeout(window.generateTttLogo, 50);
   if (window.generateBreakoutLogo) setTimeout(window.generateBreakoutLogo, 50);
+  if (window.generateChessLogo) setTimeout(window.generateChessLogo, 50);
+  if (window.generateCheckersLogo) setTimeout(window.generateCheckersLogo, 50);
 };
 window.hideInfo = () => {
   document.getElementById('info-backdrop').style.display = 'none';

@@ -4,3 +4,5 @@ import './snake.js';
 import './tetris.js';
 import './ttt.js';
 import './breakout.js';
+import './chess.js';
+import './checkers.js';
