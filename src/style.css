@@ -1,5 +1,5 @@
 :root { --win-w: 1000px; --win-h: 800px; }
-html,body { height:100%; margin:0; font-family: system-ui, sans-serif; background-color:#cccccc; }
+html,body { height:100%; margin:0; font-family: system-ui, sans-serif; background-color:#cccccc; touch-action: manipulation; }
 .page { padding:0; }
 
 .backdrop {
@@ -157,7 +157,7 @@ body.show-notebook::after {
 }.menu-title { font-size:32px; font-weight:700; margin-bottom:20px; text-align:center; letter-spacing:3px; }
 .menu-buttons { display:flex; flex-direction:column; gap:10px; flex:1; }
 .menu-button {
-  padding:15px; background:#53d066; color:white; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
+  padding:15px; background:#53d066; color:white; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; transition:background 0.2s ease; flex:1;
 }
 
 .pause-win {
@@ -171,7 +171,7 @@ body.show-notebook::after {
 }
 
 .gameover-win {
-  width:250px; height:210px; background:rgba(255,255,255,0.5); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
+  width:250px; height:270px; background:rgba(255,255,255,0.5); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
   font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; backdrop-filter:blur(5px); z-index:2000;
 }
 .gameover-title { font-size:20px; font-weight:600; margin-bottom:20px; text-align:center; color:#ff4444; }
@@ -207,7 +207,7 @@ body.show-notebook::after {
 .grid .cell {
   width:50px; height:50px;
   box-sizing:border-box;
-  border:1px solid rgba(180,180,180,0.5);
+  border:1px solid rgba(150,150,150,0.6);
   background:transparent;
 }
 .grid .entity {
@@ -282,3 +282,307 @@ body.show-notebook::after {
 }
 
 .win, .win * { box-sizing:border-box; }
+
+.gamewin-win {
+  width:250px; height:230px; background:rgba(255,255,255,0.5); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; padding:20px;
+  font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; backdrop-filter:blur(5px); z-index:2000;
+}
+.gamewin-title { font-size:20px; font-weight:600; margin-bottom:15px; text-align:center; color:#53d066; }
+.gamewin-buttons { display:flex; flex-direction:column; gap:15px; flex:1; justify-content:flex-end; }
+.gamewin-button {
+  padding:0; height:53px; background:#53d066; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s ease;
+}
+.gamewin-button:hover { background:#3ab54e; }
+
+/* tetris grid — 14 columns × 22 rows, same 50px cells */
+#tetris-grid {
+  grid-template-columns: repeat(14, 50px);
+  grid-template-rows: repeat(22, 50px);
+  width: 700px;
+  height: 1100px;
+}
+#tetris-grid .cell {
+  width: 50px;
+  height: 50px;
+}
+
+.tetris-win {
+  width: 700px;
+  min-width: 700px;
+  max-width: 700px;
+  height: 1138px;
+  min-height: 1138px;
+  max-height: 1138px;
+}
+
+#tetris-grid .cell {
+  border-radius: 4px;
+}
+
+.tetris-game-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  position: relative;
+  z-index: 1005;
+}
+.tetris-side-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.tetris-next-label {
+  font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #555;
+  letter-spacing: 2px;
+}
+.tetris-next-box {
+  width: 160px;
+  min-height: 120px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+
+.tetris-logo-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tetris-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Tic Tac Toe */
+.ttt-win {
+  width: 550px;
+  min-width: 550px;
+  max-width: 550px;
+  height: 588px;
+  min-height: 588px;
+  max-height: 588px;
+}
+.ttt-body {
+  align-items: center;
+  justify-content: center;
+}
+.ttt-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 160px);
+  grid-template-rows: repeat(3, 160px);
+  gap: 8px;
+  padding: 20px;
+}
+.ttt-cell {
+  width: 160px;
+  height: 160px;
+  background: rgba(255,255,255,0.3);
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  font-weight: 700;
+  font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  user-select: none;
+}
+.ttt-cell:hover { background: rgba(255,255,255,0.5); }
+.ttt-x { color: #2196f3; }
+.ttt-o { color: #ff4444; }
+
+/* Breakout */
+.breakout-win {
+  width: 700px; min-width: 700px; max-width: 700px;
+  height: 838px; min-height: 838px; max-height: 838px;
+}
+.breakout-level-menu {
+  width: 500px; height: 500px; max-height: 500px;
+}
+.breakout-levels {
+  overflow-y: auto; gap: 6px;
+}
+.breakout-levels .menu-button {
+  flex: none; padding: 10px; font-size: 14px;
+}
+#breakout-canvas { display: block; }
+
+/* Mobile responsive — game selection menu */
+@media (max-width: 768px) {
+  .info-fullscreen {
+    padding: 15px 15px 15px 70px;
+    gap: 20px;
+  }
+  .info-nav-button {
+    padding: 40px 0;
+    min-height: 100px;
+  }
+  .logo-title {
+    font-size: 28px;
+    letter-spacing: 6px;
+  }
+  .snake-logo {
+    width: 800px;
+    height: 90px;
+    transform: translate(-50%, -50%) translate(-320px, 16px);
+  }
+  .logo-apple {
+    width: 70px;
+    height: 70px;
+  }
+  .logo-apple::after {
+    width: 24px;
+    height: 24px;
+    top: -10px;
+    right: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .info-fullscreen {
+    padding: 10px 10px 10px 50px;
+    gap: 14px;
+  }
+  .info-nav-button {
+    padding: 30px 0;
+    min-height: 80px;
+  }
+  .logo-title {
+    font-size: 20px;
+    letter-spacing: 4px;
+  }
+  .snake-logo {
+    width: 500px;
+    height: 56px;
+    transform: translate(-50%, -50%) translate(-200px, 10px);
+  }
+  .logo-apple {
+    width: 50px;
+    height: 50px;
+    right: 10%;
+  }
+  .logo-apple::after {
+    width: 18px;
+    height: 18px;
+    top: -8px;
+    right: 8px;
+  }
+  .menu-win {
+    width: 90vw;
+    height: auto;
+    max-width: 400px;
+    min-width: auto;
+    padding: 15px;
+  }
+  .menu-title {
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+  .menu-button {
+    padding: 12px;
+    font-size: 14px;
+  }
+  .breakout-level-menu {
+    width: 90vw;
+    height: 80vh;
+    max-height: 80vh;
+  }
+}
+
+/* Responsive game windows — scale to fit viewport */
+@media (max-width: 1050px) {
+  .win {
+    width: 95vw; min-width: auto; max-width: 95vw;
+    height: auto; min-height: auto; max-height: 95vh;
+  }
+  .grid {
+    width: 100%; height: auto;
+    grid-template-columns: repeat(20, 1fr);
+    grid-template-rows: repeat(16, 1fr);
+    aspect-ratio: 20 / 16;
+  }
+  .grid .cell { width: auto; height: auto; aspect-ratio: 1; }
+  .grid .entity {
+    width: 90%; height: 90%; margin: 5%;
+    border-radius: 20%;
+  }
+  .grid .entity::before,
+  .grid .entity::after {
+    width: 15%; height: 15%;
+  }
+  .grid .entity::before { top: 18%; left: 25%; }
+  .grid .entity::after { top: 18%; right: 25%; }
+  .grid .apple { width: 70%; height: 70%; margin: 15%; }
+  .grid .apple::after { width: 30%; height: 30%; top: -10%; right: 10%; }
+}
+
+@media (max-width: 750px) {
+  .tetris-win {
+    width: 95vw; min-width: auto; max-width: 95vw;
+    height: auto; min-height: auto; max-height: 95vh;
+  }
+  .tetris-game-wrapper { flex-direction: column; align-items: center; }
+  .tetris-side-panel { flex-direction: row; gap: 15px; }
+  #tetris-grid {
+    width: 100%;
+    grid-template-columns: repeat(14, 1fr);
+    grid-template-rows: repeat(22, 1fr);
+    height: auto; aspect-ratio: 14 / 22;
+  }
+  #tetris-grid .cell { width: auto; height: auto; aspect-ratio: 1; }
+  #tetris-canvas { width: 100%; height: auto; }
+}
+
+@media (max-width: 600px) {
+  .ttt-win {
+    width: 95vw; min-width: auto; max-width: 95vw;
+    height: auto; min-height: auto; max-height: 95vh;
+  }
+  .ttt-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 10px;
+    gap: 6px;
+  }
+  .ttt-cell {
+    width: auto; height: auto; aspect-ratio: 1;
+    font-size: 10vw;
+  }
+  .breakout-win {
+    width: 95vw; min-width: auto; max-width: 95vw;
+    height: auto; min-height: auto; max-height: 95vh;
+  }
+  #breakout-canvas { width: 100%; height: auto; }
+  .win-header { flex-wrap: wrap; height: auto; padding: 6px 10px; }
+  .win-stats { font-size: 11px; gap: 8px; }
+  .win-title { font-size: 14px; }
+}
+
+@media (max-width: 480px) {
+  .pause-win, .gameover-win, .gamewin-win {
+    width: 85vw; height: auto;
+    max-width: 280px;
+  }
+  .pause-title, .gameover-title, .gamewin-title { font-size: 18px; }
+  .pause-button, .gameover-button, .gamewin-button { font-size: 13px; height: 45px; }
+}
