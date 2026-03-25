@@ -500,8 +500,17 @@ window.hideInfo = () => {
   document.getElementById('info-backdrop').style.display = 'none';
   showMenu();
 };
+window.showGenericMenu = () => {
+  document.getElementById('info-backdrop').style.display = 'none';
+  document.getElementById('generic-menu-backdrop').style.display = 'flex';
+};
+window.hideGenericMenu = () => {
+  document.getElementById('generic-menu-backdrop').style.display = 'none';
+  document.getElementById('info-backdrop').style.display = 'flex';
+};
 
 // Boot — start on the game selection screen
+document.body.classList.add('show-notebook');
 document.getElementById('info-backdrop').style.display = 'flex';
 menuBackdrop.style.display = 'none';
 gameBackdrop.style.display = 'none';
