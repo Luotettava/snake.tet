@@ -586,3 +586,161 @@ body.show-notebook::after {
   .pause-title, .gameover-title, .gamewin-title { font-size: 18px; }
   .pause-button, .gameover-button, .gamewin-button { font-size: 13px; height: 45px; }
 }
+
+/* Responsive menus — all game menus adapt to screen */
+@media (max-width: 550px) {
+  .menu-win {
+    width: 92vw !important;
+    height: auto !important;
+    min-width: auto !important;
+    max-width: 92vw !important;
+    min-height: auto !important;
+    max-height: 90vh !important;
+    padding: 16px !important;
+  }
+  .menu-title {
+    font-size: 20px !important;
+    letter-spacing: 2px !important;
+    margin-bottom: 14px !important;
+  }
+  .menu-buttons {
+    gap: 8px !important;
+  }
+  .menu-button {
+    padding: 12px !important;
+    font-size: 14px !important;
+    flex: none !important;
+  }
+  .menu-close {
+    width: 24px; height: 24px; font-size: 14px;
+  }
+  .breakout-level-menu {
+    width: 92vw !important;
+    height: 85vh !important;
+    max-height: 85vh !important;
+  }
+  .breakout-levels {
+    gap: 5px !important;
+  }
+  .breakout-levels .menu-button {
+    padding: 8px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Responsive game windows — all games */
+@media (max-width: 750px) {
+  .win, .tetris-win, .ttt-win, .breakout-win {
+    width: 96vw !important;
+    min-width: auto !important;
+    max-width: 96vw !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: 96vh !important;
+  }
+  .win-header {
+    height: auto !important;
+    padding: 5px 8px !important;
+    gap: 4px !important;
+    flex-wrap: wrap;
+  }
+  .win-title { font-size: 13px !important; }
+  .win-stats { font-size: 11px !important; gap: 6px !important; margin-right: 4px !important; }
+  .win-controls .ctrl { display: none; }
+}
+
+/* Tetris responsive */
+@media (max-width: 750px) {
+  .tetris-game-wrapper {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .tetris-side-panel {
+    flex-direction: row !important;
+  }
+  .tetris-next-box {
+    width: 100px; min-height: 70px; padding: 8px;
+  }
+  .tetris-next-label { font-size: 12px; }
+  #tetris-grid {
+    width: 100% !important; height: auto !important;
+    grid-template-columns: repeat(14, 1fr) !important;
+    grid-template-rows: repeat(22, 1fr) !important;
+    aspect-ratio: 14 / 22;
+  }
+  #tetris-grid .cell { width: auto !important; height: auto !important; }
+}
+
+/* TTT responsive */
+@media (max-width: 600px) {
+  .ttt-grid {
+    grid-template-columns: repeat(3, 28vw) !important;
+    grid-template-rows: repeat(3, 28vw) !important;
+    padding: 8px !important;
+    gap: 4px !important;
+  }
+  .ttt-cell {
+    width: auto !important; height: auto !important;
+    font-size: 12vw !important;
+  }
+}
+
+/* Breakout responsive */
+@media (max-width: 750px) {
+  #breakout-canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* Popups responsive — all games */
+@media (max-width: 550px) {
+  .pause-win {
+    width: 80vw !important; height: auto !important;
+    max-width: 280px;
+    padding: 16px !important;
+  }
+  .gameover-win {
+    width: 80vw !important; height: auto !important;
+    max-width: 280px;
+    padding: 16px !important;
+  }
+  .gamewin-win {
+    width: 80vw !important; height: auto !important;
+    max-width: 280px;
+    padding: 16px !important;
+  }
+  .tetris-overlay .pause-win,
+  .tetris-overlay .gameover-win {
+    width: 75vw !important;
+  }
+  .pause-title, .gameover-title, .gamewin-title {
+    font-size: 17px !important;
+    margin-bottom: 12px !important;
+  }
+  .pause-button, .gameover-button, .gamewin-button {
+    font-size: 13px !important;
+    height: 42px !important;
+    padding: 0 !important;
+  }
+  .best-score { font-size: 12px !important; }
+}
+
+/* Mobile pause button */
+.mobile-pause-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 2px 6px;
+  color: #555;
+  line-height: 1;
+}
+@media (max-width: 768px) {
+  .mobile-pause-btn { display: inline-block; }
+}
+@media (hover: none) and (pointer: coarse) {
+  .mobile-pause-btn { display: inline-block; }
+}

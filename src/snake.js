@@ -23,6 +23,7 @@ const snakeHTML = `
         <span id="timer-display">0:00</span>
       </div>
       <div class="win-controls">
+        <button class="mobile-pause-btn" onclick="mobilePauseSnake()" aria-label="Pause">☰</button>
         <span class="ctrl min"></span>
         <span class="ctrl max"></span>
       </div>
@@ -346,6 +347,7 @@ window.retryGame = retryGame;
 window.quitToMenu = quitToMenu;
 window.quitToMenuFromPause = quitToMenuFromPause;
 window.resumeGame = resumeGame;
+window.mobilePauseSnake = () => { if (running && !isPaused && !isGameOver) showPause(); };
 
 // --- Swipe controls for mobile ---
 let touchStartX = 0, touchStartY = 0;

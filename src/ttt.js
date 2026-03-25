@@ -274,3 +274,5 @@ function generateTttLogo() {
 window.generateTttLogo = generateTttLogo;
 window.addEventListener('load', () => setTimeout(generateTttLogo, 120));
 window.addEventListener('resize', generateTttLogo);
+
+window.mobilePauseTtt = () => { if (!tttGameOver && !tttPaused) pauseTtt(); };

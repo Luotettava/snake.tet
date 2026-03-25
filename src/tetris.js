@@ -495,3 +495,5 @@ function generateTetrisLogo() {
 window.generateTetrisLogo = generateTetrisLogo;
 window.addEventListener('load', () => setTimeout(generateTetrisLogo, 100));
 window.addEventListener('resize', generateTetrisLogo);
+
+window.mobilePauseTetris = () => { if (tetrisRunning && !tetrisPaused && !tetrisGameOver) pauseTetris(); };
