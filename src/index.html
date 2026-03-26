@@ -6,91 +6,46 @@
     <title>Snakegame</title>
   </head>
   <body>
+    <div id="global-logo" class="global-logo" onclick="goHome()">NOTEBOOKGAMES</div>
     <div class="page"></div>
 
     <div id="info-backdrop" class="backdrop notebook-bg info-fullscreen" role="dialog" aria-modal="true" style="display:flex; z-index:1500;">
-      <button class="info-nav-button" onclick="hideInfo()">
-        <svg class="snake-logo" viewBox="0 0 336 36" aria-hidden="true">
-          <!-- Row 0 — extended back -->
-          <rect x="12" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="24" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="36" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="48" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="84" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="96" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="108" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="120" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="156" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="168" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="180" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="192" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="228" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="240" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="252" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="264" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="300" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="312" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="324" y="0" width="12" height="12" rx="2" fill="#53d066"/>
-          <!-- Row 1 -->
-          <rect x="12" y="12" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="48" y="12" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="84" y="12" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="120" y="12" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="156" y="12" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="192" y="12" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="228" y="12" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="264" y="12" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="300" y="12" width="12" height="12" rx="2" fill="#53d066"/>
-          <!-- Row 2 -->
-          <rect x="0" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="12" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="48" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="60" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="72" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="84" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="120" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="132" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="144" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="156" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="192" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="204" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="216" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="228" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="264" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="276" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="288" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <rect x="300" y="24" width="12" height="12" rx="2" fill="#53d066"/>
-          <!-- eyes on head -->
-          <circle cx="334" cy="3.5" r="1.5" fill="white"/>
-          <circle cx="334" cy="8.5" r="1.5" fill="white"/>
-        </svg>
-        <div class="logo-apple"></div>
+      <button class="info-nav-button" onclick="location.hash='snake'">
+        <canvas id="snake-logo-canvas" class="tetris-logo-canvas"></canvas>
         <span class="logo-title">SNAKEGAME</span>
-        </svg>
       </button>
-      <button class="info-nav-button" onclick="showTetrisMenu()">
+      <button class="info-nav-button" onclick="location.hash='tetris'">
         <canvas id="tetris-logo-canvas" class="tetris-logo-canvas"></canvas>
         <span class="logo-title">TETRIS</span>
       </button>
-      <button class="info-nav-button" onclick="showTttMenu()">
+      <button class="info-nav-button" onclick="location.hash='ttt'">
         <canvas id="ttt-logo-canvas" class="tetris-logo-canvas"></canvas>
         <span class="logo-title">TIC TAC TOE</span>
       </button>
-      <button class="info-nav-button" onclick="showBreakoutMenu()">
+      <button class="info-nav-button" onclick="location.hash='breakout'">
         <canvas id="breakout-logo-canvas" class="tetris-logo-canvas"></canvas>
         <span class="logo-title">PING PONG</span>
       </button>
-      <button class="info-nav-button" onclick="showChessMenu()">
+      <button class="info-nav-button" onclick="location.hash='chess'">
         <canvas id="chess-logo-canvas" class="tetris-logo-canvas"></canvas>
         <span class="logo-title">CHESS</span>
       </button>
-      <button class="info-nav-button" onclick="showCheckersMenu()">
+      <button class="info-nav-button" onclick="location.hash='checkers'">
         <canvas id="checkers-logo-canvas" class="tetris-logo-canvas"></canvas>
         <span class="logo-title">CHECKERS</span>
       </button>
-      <button class="info-nav-button" onclick="showGenericMenu()"></button>
-      <button class="info-nav-button" onclick="showGenericMenu()"></button>
-      <button class="info-nav-button" onclick="showGenericMenu()"></button>
+      <button class="info-nav-button" onclick="location.hash='2048'">
+        <canvas id="g2048-logo-canvas" class="tetris-logo-canvas"></canvas>
+        <span class="logo-title">2048</span>
+      </button>
+      <button class="info-nav-button" onclick="location.hash='bomber'">
+        <canvas id="bomber-logo-canvas" class="tetris-logo-canvas"></canvas>
+        <span class="logo-title">BOMBER</span>
+      </button>
+      <button class="info-nav-button" onclick="location.hash='hockey'">
+        <canvas id="hockey-logo-canvas" class="tetris-logo-canvas"></canvas>
+        <span class="logo-title">AIR HOCKEY</span>
+      </button>
       <button class="info-nav-button" onclick="showGenericMenu()"></button>
     </div>
 
@@ -326,7 +281,146 @@
       </div>
     </div>
 
-    <div id="generic-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+    <div id="g2048-game-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="win g2048-win" role="document" aria-label="2048">
+        <div class="win-header">
+          <div class="win-title">2048</div>
+          <div class="win-stats">
+            <span id="g2048-score">Score: 0</span>
+            <span id="g2048-best">Best: 0</span>
+          </div>
+          <div class="win-controls">
+            <button class="mobile-pause-btn" onclick="mobilePause2048()" aria-label="Pause">☰</button>
+            <span class="ctrl min"></span>
+            <span class="ctrl max"></span>
+          </div>
+        </div>
+        <div class="win-body g2048-body">
+          <div id="g2048-grid" class="g2048-grid"></div>
+        </div>
+        <div id="g2048-pause-overlay" class="tetris-overlay" style="display:none;">
+          <div class="pause-win">
+            <div class="pause-title">Game Paused</div>
+            <div id="g2048-pause-score" class="best-score"></div>
+            <div class="pause-buttons">
+              <button class="pause-button" onclick="quit2048()">QUIT</button>
+              <button class="pause-button" onclick="resume2048()">RESUME</button>
+            </div>
+          </div>
+        </div>
+        <div id="g2048-result-overlay" class="tetris-overlay" style="display:none;">
+          <div class="gameover-win">
+            <div id="g2048-result-title" class="gameover-title"></div>
+            <div id="g2048-result-score" class="best-score"></div>
+            <div class="gameover-buttons">
+              <button id="g2048-retry-btn" class="gameover-button" onclick="retry2048()">RETRY</button>
+              <button class="gameover-button" onclick="quit2048()">MENU</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bomber-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="menu-win breakout-level-menu" role="document" aria-label="Bomber Levels">
+        <button class="menu-close" onclick="hideBomberMenu()" aria-label="Back">✕</button>
+        <div class="menu-title">BOMBER</div>
+        <div class="menu-buttons breakout-levels" id="bomber-level-list"></div>
+      </div>
+    </div>
+
+    <div id="bomber-game-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="win bomber-win" role="document" aria-label="Bomber">
+        <div class="win-header">
+          <div class="win-title">BOMBER</div>
+          <div class="win-stats">
+            <span id="bomber-level-display">Level: 1</span>
+            <span id="bomber-lives-display">❤❤❤</span>
+          </div>
+          <div class="win-controls">
+            <button class="mobile-pause-btn" onclick="bmPlaceBomb()" aria-label="Bomb" style="font-size:18px">💣</button>
+            <button class="mobile-pause-btn" onclick="mobilePauseBomber()" aria-label="Pause">☰</button>
+            <span class="ctrl min"></span>
+            <span class="ctrl max"></span>
+          </div>
+        </div>
+        <div class="win-body">
+          <canvas id="bomber-canvas" width="650" height="650"></canvas>
+        </div>
+        <div id="bomber-pause-overlay" class="tetris-overlay" style="display:none;">
+          <div class="pause-win">
+            <div class="pause-title">Game Paused</div>
+            <div class="pause-buttons">
+              <button class="pause-button" onclick="quitBomber()">QUIT</button>
+              <button class="pause-button" onclick="resumeBomber()">RESUME</button>
+            </div>
+          </div>
+        </div>
+        <div id="bomber-result-overlay" class="tetris-overlay" style="display:none;">
+          <div class="gameover-win">
+            <div id="bomber-result-title" class="gameover-title"></div>
+            <div class="gameover-buttons">
+              <button id="bomber-retry-btn" class="gameover-button" onclick="retryBomber()">RETRY</button>
+              <button id="bomber-next-btn" class="gamewin-button" onclick="nextBomberLevel()" style="display:none">NEXT LEVEL</button>
+              <button class="gameover-button" onclick="quitBomber()">MENU</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="hockey-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="menu-win" role="document" aria-label="Air Hockey Menu">
+        <button class="menu-close" onclick="hideHockeyMenu()" aria-label="Back">✕</button>
+        <div class="menu-title">AIR HOCKEY</div>
+        <div class="menu-buttons">
+          <button class="menu-button" onclick="startHockey('easy')">Easy</button>
+          <button class="menu-button" onclick="startHockey('normal')">Normal</button>
+          <button class="menu-button" onclick="startHockey('hard')">Hard</button>
+          <button class="menu-button" onclick="startHockey('impossible')">Impossible</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="hockey-game-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
+      <div class="win hockey-win" role="document" aria-label="Air Hockey">
+        <div class="win-header">
+          <div class="win-title">AIR HOCKEY</div>
+          <div class="win-stats">
+            <span id="hockey-score">0 - 0</span>
+          </div>
+          <div class="win-controls">
+            <button class="mobile-pause-btn" onclick="mobilePauseHockey()" aria-label="Pause">☰</button>
+            <span class="ctrl min"></span>
+            <span class="ctrl max"></span>
+          </div>
+        </div>
+        <div class="win-body">
+          <canvas id="hockey-canvas" width="500" height="700"></canvas>
+        </div>
+        <div id="hockey-pause-overlay" class="tetris-overlay" style="display:none;">
+          <div class="pause-win">
+            <div class="pause-title">Game Paused</div>
+            <div class="pause-buttons">
+              <button class="pause-button" onclick="quitHockey()">QUIT</button>
+              <button class="pause-button" onclick="resumeHockey()">RESUME</button>
+            </div>
+          </div>
+        </div>
+        <div id="hockey-result-overlay" class="tetris-overlay" style="display:none;">
+          <div class="gameover-win">
+            <div id="hockey-result-title" class="gameover-title"></div>
+            <div id="hockey-result-score" class="best-score"></div>
+            <div class="gameover-buttons">
+              <button class="gameover-button" onclick="retryHockey()">RETRY</button>
+              <button class="gameover-button" onclick="quitHockey()">MENU</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="generic-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;"></div>
       <div class="menu-win" role="document" aria-label="Game Menu">
         <button class="menu-close" onclick="hideGenericMenu()" aria-label="Back">✕</button>
         <div class="menu-title">GAME</div>

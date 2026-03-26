@@ -421,9 +421,9 @@ function generateTetrisLogo() {
   const ctx = canvas.getContext('2d');
   ctx.scale(2, 2);
 
-  const cellSize = 44;
-  const cols = Math.ceil(w / cellSize) + 4;
-  const rows = Math.ceil(h / cellSize);
+  const cellSize = Math.max(20, Math.floor(h / 3));
+  const cols = Math.ceil(w / cellSize) + 2;
+  const rows = Math.ceil(h / cellSize) + 1;
   const colors = [
     'rgba(0,188,212,0.7)', 'rgba(255,235,59,0.7)', 'rgba(156,39,176,0.7)',
     'rgba(76,175,80,0.7)', 'rgba(244,67,54,0.7)', 'rgba(255,152,0,0.7)',
@@ -497,3 +497,9 @@ window.addEventListener('load', () => setTimeout(generateTetrisLogo, 100));
 window.addEventListener('resize', generateTetrisLogo);
 
 window.mobilePauseTetris = () => { if (tetrisRunning && !tetrisPaused && !tetrisGameOver) pauseTetris(); };
+
+window.cleanupTetris = () => {
+  tetrisRunning = false; tetrisPaused = false; tetrisGameOver = false;
+  if (tetrisTimer) { clearInterval(tetrisTimer); tetrisTimer = null; }
+  if (tetrisClockInterval) { clearInterval(tetrisClockInterval); tetrisClockInterval = null; }
+};

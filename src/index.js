@@ -6,3 +6,6 @@ import './ttt.js';
 import './breakout.js';
 import './chess.js';
 import './checkers.js';
+import './g2048.js';
+import './bomber.js';
+import './hockey.js';

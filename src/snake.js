@@ -395,3 +395,112 @@ gameBackdrop.addEventListener('touchend', (e) => {
   touchHolding = false;
   setIntervalRate(normalInterval);
 });
+
+window.cleanupSnake = () => {
+  running = false; isPaused = false; isGameOver = false;
+  if (moveTimer) { clearTimeout(moveTimer); moveTimer = null; }
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  if (gameOverTimeout) { clearTimeout(gameOverTimeout); gameOverTimeout = null; }
+  heldKeys.length = 0;
+};
+
+// Snake logo generator
+function snakeRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function generateSnakeLogo() {
+  const canvas = document.getElementById('snake-logo-canvas');
+  if (!canvas) return;
+  const btn = canvas.parentElement;
+  const w = btn.offsetWidth, h = btn.offsetHeight;
+  canvas.width = w * 2; canvas.height = h * 2;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+
+  const cs = Math.max(12, Math.floor(h / 3));
+  const cols = Math.ceil(w / cs) + 2;
+  const rows = 3;
+  const gap = Math.max(1, cs * 0.08);
+  const snakeColor = 'rgba(83,208,102,0.75)';
+  const appleColor = 'rgba(255,68,68,0.7)';
+
+  // build snake path on a grid — stop 4 blocks from right
+  const grid = Array.from({length: rows}, () => Array(cols).fill(false));
+  const path = []; // [{r,c}]
+  let r = 1, lastTurn = 0; // start middle row
+  const endCol = Math.max(4, cols - 4);
+  for (let c = 0; c < endCol; c++) {
+    grid[r][c] = true;
+    path.push({r, c});
+    // try direction change — minimum 3 cols between turns
+    if (c - lastTurn >= 3 && c < endCol - 2 && Math.random() > 0.5) {
+      const jump = Math.random() > 0.5 ? 1 : (Math.random() > 0.5 ? 2 : -1);
+      const dir = Math.random() > 0.5 ? 1 : -1;
+      const steps = Math.abs(jump) === 2 ? 2 : 1;
+      let canJump = true;
+      for (let s = 1; s <= steps; s++) {
+        const checkR = r + dir * s;
+        if (checkR < 0 || checkR >= rows || grid[checkR][c]) { canJump = false; break; }
+      }
+      if (canJump) {
+        for (let s = 1; s <= steps; s++) {
+          r = r + dir;
+          grid[r][c] = true;
+          path.push({r, c});
+        }
+        lastTurn = c;
+      }
+    }
+  }
+
+  // draw body segments (all except last)
+  for (let i = 0; i < path.length - 1; i++) {
+    ctx.fillStyle = snakeColor;
+    snakeRoundRect(ctx, path[i].c * cs + gap, path[i].r * cs + gap, cs - gap * 2, cs - gap * 2, cs * 0.2);
+  }
+
+  // draw head (last segment) — same style as in-game entity with eyes
+  const head = path[path.length - 1];
+  const hx = head.c * cs + gap, hy = head.r * cs + gap;
+  const hs = cs - gap * 2;
+  ctx.fillStyle = snakeColor;
+  snakeRoundRect(ctx, hx, hy, hs, hs, cs * 0.2);
+  // eyes — facing right
+  const eyeR = hs * 0.09;
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.beginPath(); ctx.arc(hx + hs * 0.65, hy + hs * 0.3, eyeR, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(hx + hs * 0.65, hy + hs * 0.7, eyeR, 0, Math.PI * 2); ctx.fill();
+  // place apples in empty cells only
+  for (let ar = 0; ar < rows; ar++) for (let ac = 0; ac < cols; ac++) {
+    if (grid[ar][ac]) continue;
+    if (Math.random() > 0.95) {
+      const ax = ac * cs, ay = ar * cs;
+      const cr = (cs - gap * 2) * 0.35;
+      ctx.fillStyle = appleColor;
+      ctx.beginPath();
+      ctx.arc(ax + cs / 2, ay + cs / 2, cr, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(74,222,128,0.6)';
+      ctx.beginPath();
+      ctx.ellipse(ax + cs * 0.65, ay + cs * 0.2, cs * 0.1, cs * 0.06, -0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+window.generateSnakeLogo = generateSnakeLogo;
+window.addEventListener('load', () => setTimeout(generateSnakeLogo, 80));
+window.addEventListener('resize', generateSnakeLogo);

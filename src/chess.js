@@ -27,10 +27,12 @@ function pieceSVG(piece) {
               <rect x="8" y="12" width="20" height="8" rx="2" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
               <rect x="6" y="28" width="24" height="6" rx="2" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
       break;
-    case 'Q': // circle on top of triangle
-      path = `<circle cx="18" cy="12" r="7" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
-              <polygon points="8,30 18,16 28,30" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
-              <rect x="6" y="28" width="24" height="6" rx="2" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+    case 'Q': // crown with 3 points
+      path = `<polygon points="6,28 8,10 14,18 18,6 22,18 28,10 30,28" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+              <circle cx="8" cy="10" r="2.5" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+              <circle cx="18" cy="6" r="2.5" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+              <circle cx="28" cy="10" r="2.5" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+              <rect x="6" y="28" width="24" height="5" rx="2" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
       break;
     case 'R': // rectangle tower
       path = `<rect x="8" y="8" width="20" height="20" rx="2" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
@@ -433,42 +435,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') { e.preventDefault(); if (chPaused) resumeChess(); else pauseChess(); }
 });
 
-// Logo
-function drawLogoPiece(ctx, x, y, s, pieceType, isWhite) {
-  const fill = isWhite ? 'rgba(255,255,255,0.6)' : 'rgba(40,40,40,0.5)';
-  const stroke = isWhite ? 'rgba(80,80,80,0.5)' : 'rgba(0,0,0,0.4)';
-  ctx.fillStyle = fill; ctx.strokeStyle = stroke; ctx.lineWidth = 1.5;
-  const cx = x + s / 2, cy = y + s / 2;
-  const u = s * 0.35;
-  switch (pieceType) {
-    case 'K': // cross
-      ctx.fillRect(cx - u * 0.25, cy - u, u * 0.5, u * 1.6); ctx.strokeRect(cx - u * 0.25, cy - u, u * 0.5, u * 1.6);
-      ctx.fillRect(cx - u * 0.6, cy - u * 0.4, u * 1.2, u * 0.5); ctx.strokeRect(cx - u * 0.6, cy - u * 0.4, u * 1.2, u * 0.5);
-      ctx.fillRect(cx - u * 0.7, cy + u * 0.5, u * 1.4, u * 0.35); ctx.strokeRect(cx - u * 0.7, cy + u * 0.5, u * 1.4, u * 0.35);
-      break;
-    case 'Q': // circle + triangle
-      ctx.beginPath(); ctx.arc(cx, cy - u * 0.4, u * 0.4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx - u * 0.7, cy + u * 0.7); ctx.lineTo(cx, cy - u * 0.1); ctx.lineTo(cx + u * 0.7, cy + u * 0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
-      break;
-    case 'R': // tower
-      ctx.fillRect(cx - u * 0.6, cy - u * 0.5, u * 1.2, u * 1.2); ctx.strokeRect(cx - u * 0.6, cy - u * 0.5, u * 1.2, u * 1.2);
-      ctx.fillRect(cx - u * 0.7, cy - u * 0.8, u * 0.35, u * 0.35); ctx.strokeRect(cx - u * 0.7, cy - u * 0.8, u * 0.35, u * 0.35);
-      ctx.fillRect(cx + u * 0.35, cy - u * 0.8, u * 0.35, u * 0.35); ctx.strokeRect(cx + u * 0.35, cy - u * 0.8, u * 0.35, u * 0.35);
-      break;
-    case 'B': // diamond
-      ctx.beginPath(); ctx.moveTo(cx, cy - u); ctx.lineTo(cx + u * 0.7, cy); ctx.lineTo(cx, cy + u); ctx.lineTo(cx - u * 0.7, cy); ctx.closePath(); ctx.fill(); ctx.stroke();
-      break;
-    case 'N': // L-shape
-      ctx.beginPath(); ctx.moveTo(cx - u * 0.5, cy + u * 0.7); ctx.lineTo(cx - u * 0.5, cy - u * 0.7); ctx.lineTo(cx, cy - u * 0.7); ctx.lineTo(cx, cy - u * 0.2); ctx.lineTo(cx + u * 0.5, cy - u * 0.2); ctx.lineTo(cx + u * 0.5, cy + u * 0.2); ctx.lineTo(cx + u * 0.1, cy + u * 0.2); ctx.lineTo(cx + u * 0.1, cy + u * 0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
-      break;
-    case 'P': // circle on stick
-      ctx.beginPath(); ctx.arc(cx, cy - u * 0.3, u * 0.4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.fillRect(cx - u * 0.2, cy + u * 0.05, u * 0.4, u * 0.5); ctx.strokeRect(cx - u * 0.2, cy + u * 0.05, u * 0.4, u * 0.5);
-      ctx.fillRect(cx - u * 0.45, cy + u * 0.5, u * 0.9, u * 0.25); ctx.strokeRect(cx - u * 0.45, cy + u * 0.5, u * 0.9, u * 0.25);
-      break;
-  }
-}
-
+// Logo — draw pieces matching in-game shapes
 function generateChessLogo() {
   const canvas = document.getElementById('chess-logo-canvas');
   if (!canvas) return;
@@ -478,20 +445,67 @@ function generateChessLogo() {
   canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(2, 2);
-  const cellSize = 36;
+  const cellSize = Math.max(20, Math.floor(h / 3));
   const cols = Math.ceil(w / cellSize) + 1;
-  const rows = Math.ceil(h / cellSize) + 1;
+  const rows = 3;
   const types = ['K','Q','R','B','N','P'];
+
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
     const x = c * cellSize, y = r * cellSize;
     ctx.fillStyle = (r + c) % 2 === 0 ? 'rgba(240,217,181,0.5)' : 'rgba(181,136,99,0.5)';
     ctx.fillRect(x, y, cellSize, cellSize);
-    if (Math.random() > 0.6) {
+    if (Math.random() > 0.55) {
       const pt = types[Math.floor(Math.random() * types.length)];
-      drawLogoPiece(ctx, x, y, cellSize, pt, Math.random() > 0.5);
+      const isW = Math.random() > 0.5;
+      const fill = isW ? 'rgba(255,255,255,0.6)' : 'rgba(40,40,40,0.5)';
+      const stroke = isW ? 'rgba(100,100,100,0.5)' : 'rgba(0,0,0,0.4)';
+      const s = cellSize * 0.7;
+      const ox = x + (cellSize - s) / 2, oy = y + (cellSize - s) / 2;
+      ctx.save();
+      ctx.translate(ox, oy);
+      ctx.scale(s / 36, s / 36);
+      ctx.fillStyle = fill; ctx.strokeStyle = stroke; ctx.lineWidth = 2;
+      switch (pt) {
+        case 'K':
+          ctx.fillRect(14, 6, 8, 24); ctx.strokeRect(14, 6, 8, 24);
+          ctx.fillRect(8, 12, 20, 8); ctx.strokeRect(8, 12, 20, 8);
+          ctx.fillRect(6, 28, 24, 6); ctx.strokeRect(6, 28, 24, 6);
+          break;
+        case 'Q':
+          ctx.beginPath(); ctx.moveTo(6,28); ctx.lineTo(8,10); ctx.lineTo(14,18); ctx.lineTo(18,6); ctx.lineTo(22,18); ctx.lineTo(28,10); ctx.lineTo(30,28); ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.beginPath(); ctx.arc(8,10,2.5,0,Math.PI*2); ctx.fill(); ctx.stroke();
+          ctx.beginPath(); ctx.arc(18,6,2.5,0,Math.PI*2); ctx.fill(); ctx.stroke();
+          ctx.beginPath(); ctx.arc(28,10,2.5,0,Math.PI*2); ctx.fill(); ctx.stroke();
+          ctx.fillRect(6, 28, 24, 5); ctx.strokeRect(6, 28, 24, 5);
+          break;
+        case 'R':
+          ctx.fillRect(8, 8, 20, 20); ctx.strokeRect(8, 8, 20, 20);
+          ctx.fillRect(6, 6, 6, 6); ctx.strokeRect(6, 6, 6, 6);
+          ctx.fillRect(24, 6, 6, 6); ctx.strokeRect(24, 6, 6, 6);
+          ctx.fillRect(6, 28, 24, 6); ctx.strokeRect(6, 28, 24, 6);
+          break;
+        case 'B':
+          ctx.beginPath(); ctx.moveTo(18,6); ctx.lineTo(30,20); ctx.lineTo(18,34); ctx.lineTo(6,20); ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = stroke; ctx.beginPath(); ctx.arc(18,18,3,0,Math.PI*2); ctx.fill();
+          break;
+        case 'N':
+          ctx.beginPath(); ctx.moveTo(10,30); ctx.lineTo(10,10); ctx.lineTo(16,10); ctx.lineTo(16,16); ctx.lineTo(26,16); ctx.lineTo(26,24); ctx.lineTo(20,24); ctx.lineTo(20,30); ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = stroke; ctx.beginPath(); ctx.arc(13,13,2,0,Math.PI*2); ctx.fill();
+          break;
+        case 'P':
+          ctx.beginPath(); ctx.arc(18,14,7,0,Math.PI*2); ctx.fill(); ctx.stroke();
+          ctx.fillRect(14, 20, 8, 10); ctx.strokeRect(14, 20, 8, 10);
+          ctx.fillRect(10, 28, 16, 5); ctx.strokeRect(10, 28, 16, 5);
+          break;
+      }
+      ctx.restore();
     }
   }
 }
 window.generateChessLogo = generateChessLogo;
 window.addEventListener('load', () => setTimeout(generateChessLogo, 160));
 window.addEventListener('resize', generateChessLogo);
+
+window.cleanupChess = () => {
+  chGameOver = true; chPaused = false;
+};

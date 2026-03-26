@@ -185,10 +185,11 @@ function ckClick(r, c) {
   }
   const p = ckBoard[r][c];
   if (p && ckColor(p) === ckPlayerColor) {
-    ckSelected = [r, c];
     let pieceMoves = allMoves.filter(m => m.fr===r && m.fc===c);
-    // if jumps exist globally, only allow jump moves
     if (hasJumps) pieceMoves = pieceMoves.filter(m => m.jumps.length > 0);
+    // only select if this piece has valid moves
+    if (pieceMoves.length === 0) { ckSelected = null; ckMoves = []; ckRender(); return; }
+    ckSelected = [r, c];
     ckMoves = pieceMoves;
     ckRender();
   } else { ckSelected = null; ckMoves = []; ckRender(); }
@@ -263,8 +264,8 @@ function generateCheckersLogo() {
   canvas.style.width = w+'px'; canvas.style.height = h+'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(2, 2);
-  const cs = 36;
-  const cols = Math.ceil(w/cs)+1, rows = Math.ceil(h/cs)+1;
+  const cs = Math.max(20, Math.floor(h / 3));
+  const cols = Math.ceil(w/cs)+1, rows = 3;
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
     const x = c*cs, y = r*cs;
     ctx.fillStyle = (r+c)%2===0 ? 'rgba(240,217,181,0.5)' : 'rgba(181,136,99,0.5)';
@@ -281,3 +282,7 @@ function generateCheckersLogo() {
 window.generateCheckersLogo = generateCheckersLogo;
 window.addEventListener('load', () => setTimeout(generateCheckersLogo, 180));
 window.addEventListener('resize', generateCheckersLogo);
+
+window.cleanupCheckers = () => {
+  ckGameOver = true; ckPaused = false; ckAiThinking = false;
+};

@@ -51,8 +51,21 @@ function tttCellClick(idx) {
 function renderTttBoard() {
   const cells = document.getElementById('ttt-grid').children;
   for (let i = 0; i < 9; i++) {
-    cells[i].textContent = tttBoard[i] || '';
     cells[i].className = 'ttt-cell' + (tttBoard[i] === 'X' ? ' ttt-x' : tttBoard[i] === 'O' ? ' ttt-o' : '');
+    if (tttBoard[i] === 'X') {
+      cells[i].innerHTML = `<svg viewBox="0 0 100 100" width="65%" height="65%" style="filter:drop-shadow(0 2px 4px rgba(33,150,243,0.3))">
+        <defs><linearGradient id="xg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(66,165,245,0.8)"/><stop offset="100%" stop-color="rgba(25,118,210,0.6)"/></linearGradient></defs>
+        <line x1="18" y1="18" x2="82" y2="82" stroke="url(#xg)" stroke-width="16" stroke-linecap="round"/>
+        <line x1="82" y1="18" x2="18" y2="82" stroke="url(#xg)" stroke-width="16" stroke-linecap="round"/>
+      </svg>`;
+    } else if (tttBoard[i] === 'O') {
+      cells[i].innerHTML = `<svg viewBox="0 0 100 100" width="65%" height="65%" style="filter:drop-shadow(0 2px 4px rgba(244,67,54,0.3))">
+        <defs><linearGradient id="og" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(239,83,80,0.8)"/><stop offset="100%" stop-color="rgba(211,47,47,0.6)"/></linearGradient></defs>
+        <circle cx="50" cy="50" r="33" fill="none" stroke="url(#og)" stroke-width="14"/>
+      </svg>`;
+    } else {
+      cells[i].innerHTML = '';
+    }
   }
 }
 
@@ -235,14 +248,14 @@ function generateTttLogo() {
   const ctx = canvas.getContext('2d');
   ctx.scale(2, 2);
 
-  const cellSize = 38;
+  const cellSize = Math.floor(h / 3);
   const cols = Math.ceil(w / cellSize) + 1;
-  const rows = Math.ceil(h / cellSize) + 1;
+  const rows = 3;
   const xColor = 'rgba(33,150,243,0.5)';
   const oColor = 'rgba(244,67,54,0.5)';
 
-  ctx.lineWidth = 3;
   ctx.lineCap = 'round';
+  ctx.lineWidth = Math.max(2, cellSize * 0.08);
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
