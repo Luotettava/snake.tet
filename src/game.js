@@ -66,16 +66,37 @@ document.body.classList.add('show-notebook');
 // Initial route
 setTimeout(handleRoute, 10);
 
-// Limit scroll on game selection — can't scroll past last button
-const infoBackdrop = document.getElementById('info-backdrop');
-if (infoBackdrop) {
-  infoBackdrop.addEventListener('scroll', () => {
-    const buttons = infoBackdrop.querySelectorAll('.info-nav-button');
+// Smooth scroll limit — prevent scrolling past last button
+const infoEl = document.getElementById('info-backdrop');
+if (infoEl) {
+  let maxScroll = 0;
+  function calcMaxScroll() {
+    const buttons = infoEl.querySelectorAll('.info-nav-button');
     if (buttons.length === 0) return;
     const lastBtn = buttons[buttons.length - 1];
-    const maxScroll = lastBtn.offsetTop + lastBtn.offsetHeight + 40 - infoBackdrop.clientHeight;
-    if (infoBackdrop.scrollTop > maxScroll && maxScroll > 0) {
-      infoBackdrop.scrollTop = maxScroll;
+    maxScroll = lastBtn.offsetTop + lastBtn.offsetHeight + 40 - infoEl.clientHeight;
+    if (maxScroll < 0) maxScroll = 0;
+  }
+  // recalc on resize
+  window.addEventListener('resize', calcMaxScroll);
+  // use wheel event to block over-scroll
+  infoEl.addEventListener('wheel', (e) => {
+    calcMaxScroll();
+    if (e.deltaY > 0 && infoEl.scrollTop >= maxScroll) {
+      e.preventDefault();
+      infoEl.scrollTop = maxScroll;
     }
-  });
+  }, { passive: false });
+  // touch scroll limit
+  let lastTouchY = 0;
+  infoEl.addEventListener('touchstart', (e) => { lastTouchY = e.touches[0].clientY; }, { passive: true });
+  infoEl.addEventListener('touchmove', (e) => {
+    calcMaxScroll();
+    const dy = lastTouchY - e.touches[0].clientY; // positive = scrolling down
+    if (dy > 0 && infoEl.scrollTop >= maxScroll) {
+      e.preventDefault();
+      infoEl.scrollTop = maxScroll;
+    }
+    lastTouchY = e.touches[0].clientY;
+  }, { passive: false });
 }
