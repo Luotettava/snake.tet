@@ -1,5 +1,5 @@
 // Air Hockey — player vs AI
-const HK_W = 500, HK_H = 700;
+const HK_W = 700, HK_H = 900;
 const HK_PR = 30, HK_BR = 15, HK_GOAL_W = 140;
 const HK_WIN_SCORE = 7;
 
@@ -24,7 +24,15 @@ function hkInit() {
 function hkResetPositions() {
   hkPlayer = { x: HK_W/2, y: HK_H * 0.8, r: HK_PR };
   hkAI = { x: HK_W/2, y: HK_H * 0.2, r: HK_PR };
-  hkBall = { x: HK_W/2, y: HK_H/2, dx: (Math.random()-0.5)*4, dy: 3, r: HK_BR };
+  let ballSpeed;
+  switch (hkDifficulty) {
+    case 'easy': ballSpeed = 2; break;
+    case 'normal': ballSpeed = 3; break;
+    case 'hard': ballSpeed = 4.5; break;
+    case 'impossible': ballSpeed = 6; break;
+    default: ballSpeed = 3;
+  }
+  hkBall = { x: HK_W/2, y: HK_H/2, dx: (Math.random()-0.5)*ballSpeed, dy: ballSpeed, r: HK_BR };
 }
 
 function hkUpdateScore() {
@@ -70,12 +78,12 @@ function hkUpdate() {
     b.y = HK_H - b.r; b.dy = -Math.abs(b.dy);
   }
 
-  // player paddle — smooth follow mouse, constrained to bottom half
+  // player paddle — snap to mouse position, constrained to bottom half
   hkPlayerPrevX = hkPlayer.x; hkPlayerPrevY = hkPlayer.y;
   const targetX = Math.max(HK_PR, Math.min(HK_W - HK_PR, hkMouseX));
   const targetY = Math.max(HK_H/2 + HK_PR, Math.min(HK_H - HK_PR, hkMouseY));
-  hkPlayer.x += (targetX - hkPlayer.x) * 0.5;
-  hkPlayer.y += (targetY - hkPlayer.y) * 0.5;
+  hkPlayer.x += (targetX - hkPlayer.x) * 0.8;
+  hkPlayer.y += (targetY - hkPlayer.y) * 0.8;
 
   // AI paddle — aim to hit ball toward player goal (bottom center)
   hkAIPrevX = hkAI.x; hkAIPrevY = hkAI.y;
@@ -204,11 +212,13 @@ window.startHockey = (diff) => {
   document.getElementById('hockey-menu-backdrop').style.display = 'none';
   document.getElementById('hockey-game-backdrop').style.display = 'flex';
   hkCanvas = document.getElementById('hockey-canvas');
-  // listen on canvas for mouse — works on hover, no click needed
   hkCanvas.addEventListener('mousemove', hkMouseHandler);
   hkCanvas.addEventListener('mouseenter', hkMouseHandler);
   hkCanvas.addEventListener('touchmove', hkTouchHandler, { passive: false });
   hkCanvas.addEventListener('touchstart', hkTouchHandler, { passive: false });
+  // also track mouse on the whole backdrop
+  const bd = document.getElementById('hockey-game-backdrop');
+  bd.addEventListener('mousemove', hkMouseHandler);
   hkInit();
 };
 function resumeHockey() { hkPaused = false; document.getElementById('hockey-pause-overlay').style.display = 'none'; if (hkRunning) hkLoop(); }

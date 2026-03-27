@@ -51,7 +51,7 @@
 
     <div id="tetris-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
       <div class="menu-win" role="document" aria-label="Tetris Menu">
-        <button class="menu-close" onclick="hideTetrisMenu()" aria-label="Back">✕</button>
+        <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
         <div class="menu-title">TETRIS</div>
         <div class="menu-buttons">
           <button class="menu-button" onclick="startTetris('easy')">Easy</button>
@@ -111,7 +111,7 @@
 
     <div id="breakout-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
       <div class="menu-win breakout-level-menu" role="document" aria-label="Breakout Levels">
-        <button class="menu-close" onclick="hideBreakoutMenu()" aria-label="Back">✕</button>
+        <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
         <div class="menu-title">PING PONG</div>
         <div class="menu-buttons breakout-levels" id="breakout-level-list"></div>
       </div>
@@ -161,7 +161,7 @@
 
     <div id="chess-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
       <div class="menu-win" role="document" aria-label="Chess Menu">
-        <button class="menu-close" onclick="hideChessMenu()" aria-label="Back">✕</button>
+        <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
         <div class="menu-title">CHESS</div>
         <div class="menu-buttons">
           <button class="menu-button" onclick="startChess('easy')">Easy</button>
@@ -174,7 +174,7 @@
 
     <div id="chess-color-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
       <div class="menu-win" role="document" aria-label="Choose Color">
-        <button class="menu-close" onclick="hideChessColor()" aria-label="Back">✕</button>
+        <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
         <div class="menu-title">PLAY AS</div>
         <div class="menu-buttons">
           <button class="menu-button" onclick="startChessColor('w')" style="background:#f0d9b5;color:#333">♔ White</button>
@@ -222,7 +222,7 @@
 
     <div id="checkers-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
       <div class="menu-win" role="document" aria-label="Checkers Menu">
-        <button class="menu-close" onclick="hideCheckersMenu()" aria-label="Back">✕</button>
+        <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
         <div class="menu-title">CHECKERS</div>
         <div class="menu-buttons">
           <button class="menu-button" onclick="startCheckers('easy')">Easy</button>
@@ -235,7 +235,7 @@
 
     <div id="checkers-color-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
       <div class="menu-win" role="document" aria-label="Choose Color">
-        <button class="menu-close" onclick="hideCheckersColor()" aria-label="Back">✕</button>
+        <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
         <div class="menu-title">PLAY AS</div>
         <div class="menu-buttons">
           <button class="menu-button" onclick="startCheckersColor('r')" style="background:#f0d9b5;color:#333">● White</button>
@@ -323,7 +323,7 @@
 
     <div id="bomber-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
       <div class="menu-win breakout-level-menu" role="document" aria-label="Bomber Levels">
-        <button class="menu-close" onclick="hideBomberMenu()" aria-label="Back">✕</button>
+        <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
         <div class="menu-title">BOMBER</div>
         <div class="menu-buttons breakout-levels" id="bomber-level-list"></div>
       </div>
@@ -371,7 +371,7 @@
 
     <div id="hockey-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
       <div class="menu-win" role="document" aria-label="Air Hockey Menu">
-        <button class="menu-close" onclick="hideHockeyMenu()" aria-label="Back">✕</button>
+        <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
         <div class="menu-title">AIR HOCKEY</div>
         <div class="menu-buttons">
           <button class="menu-button" onclick="startHockey('easy')">Easy</button>
@@ -396,7 +396,7 @@
           </div>
         </div>
         <div class="win-body">
-          <canvas id="hockey-canvas" width="500" height="700"></canvas>
+          <canvas id="hockey-canvas" width="700" height="900"></canvas>
         </div>
         <div id="hockey-pause-overlay" class="tetris-overlay" style="display:none;">
           <div class="pause-win">
@@ -422,7 +422,7 @@
 
     <div id="generic-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;"></div>
       <div class="menu-win" role="document" aria-label="Game Menu">
-        <button class="menu-close" onclick="hideGenericMenu()" aria-label="Back">✕</button>
+        <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
         <div class="menu-title">GAME</div>
         <div class="menu-buttons">
           <button class="menu-button" disabled style="opacity:0.5;cursor:not-allowed">Easy</button>
@@ -435,7 +435,7 @@
 
     <div id="ttt-menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
       <div class="menu-win" role="document" aria-label="Tic Tac Toe Menu">
-        <button class="menu-close" onclick="hideTttMenu()" aria-label="Back">✕</button>
+        <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
         <div class="menu-title">TIC TAC TOE</div>
         <div class="menu-buttons">
           <button class="menu-button" onclick="startTtt('easy')">Easy</button>

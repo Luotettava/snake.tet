@@ -1,5 +1,5 @@
 :root { --win-w: 1000px; --win-h: 800px; }
-html,body { height:100%; margin:0; font-family: system-ui, sans-serif; background-color:#cccccc; touch-action: manipulation; }
+html,body { height:100%; margin:0; font-family: system-ui, sans-serif; background-color:#cccccc; touch-action: manipulation; overscroll-behavior: none; }
 .page { padding:0; }
 
 .global-logo {
@@ -665,8 +665,12 @@ body.show-notebook::after {
 
 /* Air Hockey */
 .hockey-win {
-  width: 540px; min-width: auto; max-width: 95vw;
+  width: 750px; min-width: auto; max-width: 95vw;
   height: auto; min-height: auto; max-height: 95vh;
   overflow: hidden;
 }
 #hockey-canvas { display: block; width: 100%; height: auto; }
+
+/* Prevent scroll/zoom on game screens */
+.backdrop { touch-action: none; }
+.info-fullscreen { touch-action: pan-y; }

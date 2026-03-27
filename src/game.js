@@ -6,15 +6,13 @@ function regenAllLogos() {
 }
 
 function showHome() {
-  // hide all backdrops and overlays
   document.querySelectorAll('.backdrop').forEach(el => el.style.display = 'none');
   document.querySelectorAll('.tetris-overlay').forEach(el => el.style.display = 'none');
-  // cleanup all games
   const cleanups = ['cleanupSnake','cleanupTetris','cleanupBreakout','cleanupChess','cleanupCheckers','cleanup2048','cleanupBomber','cleanupHockey'];
   cleanups.forEach(fn => { if (window[fn]) window[fn](); });
-  // show game selection
   document.getElementById('info-backdrop').style.display = 'flex';
-  regenAllLogos();
+  // force reflow then regen logos
+  requestAnimationFrame(() => { requestAnimationFrame(regenAllLogos); });
 }
 
 // Route based on hash

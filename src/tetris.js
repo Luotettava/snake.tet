@@ -343,6 +343,63 @@ function tetrisKeyHandler(e) {
 
 window.addEventListener('keydown', tetrisKeyHandler);
 
+// Touch controls for tetris
+let tetTouchX = 0, tetTouchY = 0, tetTouchTime = 0;
+document.addEventListener('touchstart', (e) => {
+  const bd = document.getElementById('tetris-game-backdrop');
+  if (!bd || bd.style.display === 'none') return;
+  tetTouchX = e.touches[0].clientX;
+  tetTouchY = e.touches[0].clientY;
+  tetTouchTime = performance.now();
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  const bd = document.getElementById('tetris-game-backdrop');
+  if (!bd || bd.style.display === 'none' || tetrisPaused || !tetrisRunning) return;
+  const dx = e.changedTouches[0].clientX - tetTouchX;
+  const dy = e.changedTouches[0].clientY - tetTouchY;
+  const elapsed = performance.now() - tetTouchTime;
+  const dist = Math.max(Math.abs(dx), Math.abs(dy));
+
+  if (dist < 15 && elapsed < 300) {
+    // tap = rotate
+    rotatePiece();
+    return;
+  }
+  if (dist < 20) return;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    // horizontal swipe
+    if (dx > 0) moveRight(); else moveLeft();
+  } else {
+    // vertical swipe
+    if (dy > 0) {
+      if (dy > 80) hardDrop(); else moveDown();
+    } else {
+      rotatePiece();
+    }
+  }
+});
+
+// hold to repeat moves on touch
+let tetTouchInterval = null;
+document.addEventListener('touchmove', (e) => {
+  const bd = document.getElementById('tetris-game-backdrop');
+  if (!bd || bd.style.display === 'none' || tetrisPaused || !tetrisRunning) return;
+  const dx = e.touches[0].clientX - tetTouchX;
+  const dy = e.touches[0].clientY - tetTouchY;
+  if (Math.abs(dx) > 30) {
+    if (dx > 0) moveRight(); else moveLeft();
+    tetTouchX = e.touches[0].clientX;
+    tetTouchY = e.touches[0].clientY;
+  }
+  if (dy > 30) {
+    moveDown();
+    tetTouchX = e.touches[0].clientX;
+    tetTouchY = e.touches[0].clientY;
+  }
+}, { passive: true });
+
 // expose startTetris to replace the old stub
 window.startTetris = (difficulty) => {
   lastTetrisDifficulty = difficulty;

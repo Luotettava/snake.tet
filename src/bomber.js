@@ -7,8 +7,10 @@ const BM_COLORS = { 0:'transparent', 1:'#555', 2:'rgba(180,140,100,0.7)', 3:'rgb
 let bmBoard, bmPlayer, bmBombs, bmExplosions, bmLevel, bmLives, bmRunning, bmPaused, bmAnimId;
 let bmCanvas, bmCtx, bmExitFound, bmCompletedLevels = new Set();
 let bmPlayerVisual = { x: 0, y: 0 }; // smooth visual position
-let bmMoveTimer = null, bmMoveDir = null, bmMoveInterval = 140, bmFastInterval = 80;
+let bmMoveTimer = null, bmMoveDir = null, bmMoveInterval = 200, bmFastInterval = 120;
 let bmHeldKeys = new Set();
+let bmLastMoveTime = 0;
+let bmMoveCount = 0;
 
 function bmGenLevel(lvl) {
   const b = Array.from({length:BM_ROWS}, () => Array(BM_COLS).fill(0));
@@ -51,7 +53,7 @@ function bmInit(lvl) {
 
 function bmLoop() {
   if (!bmRunning) return;
-  if (!bmPaused) { bmUpdate(); bmDraw(); }
+  if (!bmPaused) { bmUpdateMovement(); bmUpdate(); bmDraw(); }
   bmAnimId = requestAnimationFrame(bmLoop);
 }
 
@@ -107,6 +109,41 @@ function bmExplode(r, c, range) {
   }
 }
 
+// Shared drawing functions for game and logo
+function bmDrawBrick(ctx, x, y, s) {
+  ctx.fillStyle = 'rgba(120,120,120,0.4)';
+  ctx.beginPath(); ctx.roundRect(x+2, y+2, s-4, s-4, 4); ctx.fill();
+  ctx.strokeStyle = 'rgba(80,80,80,0.25)'; ctx.lineWidth = 1;
+  const bh = (s-4) / 3;
+  for (let i = 1; i < 3; i++) { ctx.beginPath(); ctx.moveTo(x+2, y+2+i*bh); ctx.lineTo(x+s-2, y+2+i*bh); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(x+s/2, y+2); ctx.lineTo(x+s/2, y+2+bh); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+s*0.25, y+2+bh); ctx.lineTo(x+s*0.25, y+2+bh*2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+s*0.75, y+2+bh); ctx.lineTo(x+s*0.75, y+2+bh*2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+s/2, y+2+bh*2); ctx.lineTo(x+s/2, y+2+bh*3); ctx.stroke();
+}
+function bmDrawCrate(ctx, x, y, s) {
+  const p = s * 0.08, bx = x+p, by = y+p, bs = s-p*2;
+  ctx.fillStyle = 'rgba(190,165,110,0.4)';
+  ctx.beginPath(); ctx.roundRect(bx, by, bs, bs, 4); ctx.fill();
+  ctx.strokeStyle = 'rgba(140,110,60,0.4)'; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(bx+2, by+2); ctx.lineTo(bx+bs-2, by+bs-2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(bx+bs-2, by+2); ctx.lineTo(bx+2, by+bs-2); ctx.stroke();
+  ctx.lineCap = 'butt';
+}
+function bmDrawBomb(ctx, x, y, s, pulse) {
+  ctx.fillStyle = 'rgba(60,60,60,0.45)';
+  ctx.beginPath(); ctx.arc(x+s/2, y+s/2, s*0.3*(pulse||1), 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,180,50,0.5)';
+  ctx.beginPath(); ctx.arc(x+s/2, y+s/2-s*0.28, s*0.06, 0, Math.PI*2); ctx.fill();
+}
+function bmDrawPlayer(ctx, x, y, s) {
+  ctx.fillStyle = 'rgba(33,150,243,0.5)';
+  ctx.beginPath(); ctx.arc(x+s/2, y+s/2, s*0.32, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.beginPath(); ctx.arc(x+s/2-s*0.08, y+s/2-s*0.06, s*0.05, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+s/2+s*0.08, y+s/2-s*0.06, s*0.05, 0, Math.PI*2); ctx.fill();
+}
+
 function bmDraw() {
   const ctx = bmCtx;
   ctx.clearRect(0, 0, BM_W, BM_H);
@@ -115,55 +152,83 @@ function bmDraw() {
     const x = c * BM_CS, y = r * BM_CS;
     const v = bmBoard[r][c];
     if (v === 1) {
-      ctx.fillStyle = 'rgba(80,80,80,0.7)';
-      ctx.beginPath(); ctx.roundRect(x+1, y+1, BM_CS-2, BM_CS-2, 4); ctx.fill();
+      bmDrawBrick(ctx, x, y, BM_CS);
     } else if (v === 2) {
-      ctx.fillStyle = 'rgba(180,140,100,0.6)';
-      ctx.beginPath(); ctx.roundRect(x+1, y+1, BM_CS-2, BM_CS-2, 4); ctx.fill();
-      ctx.globalAlpha = 0.2; ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.roundRect(x+3, y+2, BM_CS-6, (BM_CS-4)*0.4, 3); ctx.fill();
-      ctx.globalAlpha = 1;
+      bmDrawCrate(ctx, x, y, BM_CS);
     } else if (v === 3 && bmExitFound) {
-      ctx.fillStyle = 'rgba(83,208,102,0.5)';
-      ctx.beginPath(); ctx.roundRect(x+1, y+1, BM_CS-2, BM_CS-2, 4); ctx.fill();
-      ctx.fillStyle = 'rgba(83,208,102,0.8)'; ctx.font = 'bold 20px sans-serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('EXIT', x + BM_CS/2, y + BM_CS/2);
+      // gem diamond with facets
+      const cx = x + BM_CS/2, cy = y + BM_CS/2;
+      const w2 = BM_CS * 0.4, h2 = BM_CS * 0.42;
+      const crownH = h2 * 0.35;
+      // crown top (flat top trapezoid)
+      ctx.fillStyle = 'rgba(180,210,255,0.7)';
+      ctx.beginPath();
+      ctx.moveTo(cx - w2 * 0.6, cy - h2);       // top-left
+      ctx.lineTo(cx + w2 * 0.6, cy - h2);       // top-right
+      ctx.lineTo(cx + w2, cy - h2 + crownH);    // crown-right
+      ctx.lineTo(cx - w2, cy - h2 + crownH);    // crown-left
+      ctx.closePath(); ctx.fill();
+      // crown facets — left triangle
+      ctx.fillStyle = 'rgba(200,225,255,0.8)';
+      ctx.beginPath();
+      ctx.moveTo(cx - w2 * 0.6, cy - h2);
+      ctx.lineTo(cx - w2 * 0.1, cy - h2 + crownH);
+      ctx.lineTo(cx - w2, cy - h2 + crownH);
+      ctx.closePath(); ctx.fill();
+      // crown facets — right triangle
+      ctx.fillStyle = 'rgba(100,150,230,0.7)';
+      ctx.beginPath();
+      ctx.moveTo(cx + w2 * 0.6, cy - h2);
+      ctx.lineTo(cx + w2 * 0.1, cy - h2 + crownH);
+      ctx.lineTo(cx + w2, cy - h2 + crownH);
+      ctx.closePath(); ctx.fill();
+      // bottom left facet
+      ctx.fillStyle = 'rgba(140,185,255,0.7)';
+      ctx.beginPath();
+      ctx.moveTo(cx - w2, cy - h2 + crownH);
+      ctx.lineTo(cx - w2 * 0.1, cy - h2 + crownH);
+      ctx.lineTo(cx, cy + h2);
+      ctx.closePath(); ctx.fill();
+      // bottom center facet
+      ctx.fillStyle = 'rgba(100,160,240,0.7)';
+      ctx.beginPath();
+      ctx.moveTo(cx - w2 * 0.1, cy - h2 + crownH);
+      ctx.lineTo(cx + w2 * 0.1, cy - h2 + crownH);
+      ctx.lineTo(cx, cy + h2);
+      ctx.closePath(); ctx.fill();
+      // bottom right facet
+      ctx.fillStyle = 'rgba(70,130,220,0.7)';
+      ctx.beginPath();
+      ctx.moveTo(cx + w2 * 0.1, cy - h2 + crownH);
+      ctx.lineTo(cx + w2, cy - h2 + crownH);
+      ctx.lineTo(cx, cy + h2);
+      ctx.closePath(); ctx.fill();
     }
     // grid lines
     ctx.strokeStyle = 'rgba(0,0,0,0.04)'; ctx.lineWidth = 1;
     ctx.strokeRect(x, y, BM_CS, BM_CS);
   }
-  // bombs
+  // bombs — soft
   for (const bomb of bmBombs) {
-    const x = bomb.c * BM_CS + BM_CS/2, y = bomb.r * BM_CS + BM_CS/2;
-    const pulse = 1 + Math.sin((performance.now() - bomb.time) * 0.01) * 0.1;
-    ctx.fillStyle = 'rgba(40,40,40,0.8)';
-    ctx.beginPath(); ctx.arc(x, y, BM_CS * 0.35 * pulse, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(255,100,50,0.8)';
-    ctx.beginPath(); ctx.arc(x, y - BM_CS * 0.3, 4, 0, Math.PI * 2); ctx.fill();
+    const pulse = 1 + Math.sin((performance.now() - bomb.time) * 0.008) * 0.08;
+    bmDrawBomb(ctx, bomb.c * BM_CS, bomb.r * BM_CS, BM_CS, pulse);
   }
-  // explosions
+  // explosions — soft glow
   for (const exp of bmExplosions) {
     const age = (performance.now() - exp.time) / 500;
     ctx.save();
-    ctx.globalAlpha = 1 - age;
-    ctx.fillStyle = `rgba(255,${Math.floor(160 - age * 100)},50,0.7)`;
+    ctx.globalAlpha = (1 - age) * 0.45;
+    ctx.fillStyle = 'rgba(255,180,80,0.5)';
     ctx.beginPath();
-    ctx.roundRect(exp.c * BM_CS + 2, exp.r * BM_CS + 2, BM_CS - 4, BM_CS - 4, 6);
+    ctx.roundRect(exp.c * BM_CS + 4, exp.r * BM_CS + 4, BM_CS - 8, BM_CS - 8, 6);
     ctx.fill();
     ctx.restore();
   }
-  // player — smooth interpolation
+  // player — soft blue
   const targetX = bmPlayer.c * BM_CS, targetY = bmPlayer.r * BM_CS;
   bmPlayerVisual.x += (targetX - bmPlayerVisual.x) * 0.35;
   bmPlayerVisual.y += (targetY - bmPlayerVisual.y) * 0.35;
-  const px = bmPlayerVisual.x + BM_CS/2, py = bmPlayerVisual.y + BM_CS/2;
-  ctx.fillStyle = 'rgba(33,150,243,0.8)';
-  ctx.beginPath(); ctx.arc(px, py, BM_CS * 0.35, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(px - 5, py - 4, 3, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(px + 5, py - 4, 3, 0, Math.PI * 2); ctx.fill();
+  bmDrawPlayer(ctx, bmPlayerVisual.x, bmPlayerVisual.y, BM_CS);
 }
 
 function bmEndGame(won) {
@@ -199,32 +264,33 @@ function bmPlaceBomb() {
 }
 
 function bmKeyToDir(key) {
-  switch (key) {
-    case 'ArrowUp': case 'w': case 'W': return [-1, 0];
-    case 'ArrowDown': case 's': case 'S': return [1, 0];
-    case 'ArrowLeft': case 'a': case 'A': return [0, -1];
-    case 'ArrowRight': case 'd': case 'D': return [0, 1];
+  switch (key.toLowerCase()) {
+    case 'arrowup': case 'w': return [-1, 0];
+    case 'arrowdown': case 's': return [1, 0];
+    case 'arrowleft': case 'a': return [0, -1];
+    case 'arrowright': case 'd': return [0, 1];
   }
   return null;
 }
 
-function bmProcessHeld() {
-  // find most recent direction key
-  const dirKeys = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D'];
-  let lastDir = null;
-  for (const k of bmHeldKeys) { if (dirKeys.includes(k)) lastDir = k; }
-  if (!lastDir) {
-    if (bmMoveTimer) { clearInterval(bmMoveTimer); bmMoveTimer = null; }
-    return;
+// Movement happens in bmUpdate via held keys — no timers needed
+function bmUpdateMovement() {
+  if (!bmRunning || bmPaused) return;
+  const now = performance.now();
+  const arr = Array.from(bmHeldKeys);
+  let dir = null;
+  for (let i = arr.length - 1; i >= 0; i--) {
+    dir = bmKeyToDir(arr[i]);
+    if (dir) break;
   }
-  const dir = bmKeyToDir(lastDir);
-  if (!dir) return;
-  // check if same direction held — speed up
-  const isSame = bmMoveDir && bmMoveDir[0] === dir[0] && bmMoveDir[1] === dir[1];
-  bmMoveDir = dir;
-  if (!bmMoveTimer) {
-    bmMove(dir[0], dir[1]); // immediate first step
-    bmMoveTimer = setInterval(() => bmMove(bmMoveDir[0], bmMoveDir[1]), bmFastInterval);
+  if (!dir) { bmMoveCount = 0; return; }
+  const elapsed = now - bmLastMoveTime;
+  // speed ramps: 200ms for first 3 moves, then 120ms
+  const interval = bmMoveCount < 3 ? 200 : 120;
+  if (elapsed >= interval) {
+    bmMove(dir[0], dir[1]);
+    bmLastMoveTime = now;
+    bmMoveCount++;
   }
 }
 
@@ -234,35 +300,23 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') { e.preventDefault(); if (bmPaused) resumeBomber(); else if (bmRunning) { bmPaused = true; document.getElementById('bomber-pause-overlay').style.display = 'flex'; } return; }
   if (bmPaused) return;
   if (e.key === ' ' || e.key === 'Enter') { bmPlaceBomb(); e.preventDefault(); return; }
-  const dir = bmKeyToDir(e.key);
-  if (dir) {
+  if (bmKeyToDir(e.key)) {
     e.preventDefault();
     if (!bmHeldKeys.has(e.key)) {
       bmHeldKeys.add(e.key);
-      if (bmMoveTimer) { clearInterval(bmMoveTimer); bmMoveTimer = null; }
-      bmMove(dir[0], dir[1]);
-      bmMoveDir = dir;
-      // start slow, then speed up
-      let steps = 0;
-      bmMoveTimer = setInterval(() => {
-        bmMove(bmMoveDir[0], bmMoveDir[1]);
-        steps++;
-        if (steps === 3) {
-          clearInterval(bmMoveTimer);
-          bmMoveTimer = setInterval(() => bmMove(bmMoveDir[0], bmMoveDir[1]), bmFastInterval);
-        }
-      }, bmMoveInterval);
+      // allow one immediate step on new key press, but only if enough time passed
+      const now = performance.now();
+      if (now - bmLastMoveTime > 80) {
+        const dir = bmKeyToDir(e.key);
+        if (dir) { bmMove(dir[0], dir[1]); bmLastMoveTime = now; }
+      }
     }
   }
 });
 
 window.addEventListener('keyup', (e) => {
   bmHeldKeys.delete(e.key);
-  const dirKeys = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D'];
-  // check if any direction still held
-  let anyHeld = false;
-  for (const k of bmHeldKeys) { if (dirKeys.includes(k)) { anyHeld = true; break; } }
-  if (!anyHeld && bmMoveTimer) { clearInterval(bmMoveTimer); bmMoveTimer = null; bmMoveDir = null; }
+  if (bmHeldKeys.size === 0) bmMoveCount = 0;
 });
 
 // Touch — virtual D-pad: drag to move continuously, double-tap to bomb
@@ -363,7 +417,7 @@ window.retryBomber = retryBomber;
 window.nextBomberLevel = nextBomberLevel;
 window.mobilePauseBomber = () => { if (bmRunning && !bmPaused) { bmPaused = true; document.getElementById('bomber-pause-overlay').style.display = 'flex'; } };
 window.bmPlaceBomb = bmPlaceBomb;
-window.cleanupBomber = () => { bmRunning = false; bmPaused = false; if (bmAnimId) { cancelAnimationFrame(bmAnimId); bmAnimId = null; } if (bmMoveTimer) { clearInterval(bmMoveTimer); bmMoveTimer = null; } if (bmTouchTimer) { clearInterval(bmTouchTimer); bmTouchTimer = null; } bmHeldKeys.clear(); };
+window.cleanupBomber = () => { bmRunning = false; bmPaused = false; if (bmAnimId) { cancelAnimationFrame(bmAnimId); bmAnimId = null; } bmHeldKeys.clear(); };
 
 // Logo
 function generateBomberLogo() {
@@ -377,27 +431,28 @@ function generateBomberLogo() {
   ctx.scale(2, 2);
   const cs = Math.max(16, Math.floor(h / 3));
   const cols = Math.ceil(w / cs) + 1;
+  const grid = [];
+  for (let r = 0; r < 3; r++) {
+    grid[r] = [];
+    for (let c = 0; c < cols; c++) {
+      const rnd = Math.random();
+      if (rnd < 0.2) grid[r][c] = 1;       // brick — random 20%
+      else if (rnd < 0.55) grid[r][c] = 2;  // crate — random 35%
+      else grid[r][c] = 0;                   // empty
+    }
+  }
   for (let r = 0; r < 3; r++) for (let c = 0; c < cols; c++) {
     const x = c * cs, y = r * cs;
-    // random walls and bricks
-    if ((r + c) % 3 === 0) {
-      ctx.fillStyle = 'rgba(80,80,80,0.4)';
-      ctx.beginPath(); ctx.roundRect(x+1, y+1, cs-2, cs-2, 3); ctx.fill();
-    } else if (Math.random() > 0.5) {
-      ctx.fillStyle = 'rgba(180,140,100,0.35)';
-      ctx.beginPath(); ctx.roundRect(x+1, y+1, cs-2, cs-2, 3); ctx.fill();
+    const v = grid[r][c];
+    ctx.strokeStyle = 'rgba(0,0,0,0.04)'; ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, cs, cs);
+    if (v === 1) {
+      bmDrawBrick(ctx, x, y, cs);
+    } else if (v === 2) {
+      bmDrawCrate(ctx, x, y, cs);
     }
-    // random bombs
-    if (Math.random() > 0.85) {
-      ctx.fillStyle = 'rgba(40,40,40,0.5)';
-      ctx.beginPath(); ctx.arc(x + cs/2, y + cs/2, cs * 0.3, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(255,100,50,0.6)';
-      ctx.beginPath(); ctx.arc(x + cs/2, y + cs/2 - cs * 0.25, 3, 0, Math.PI * 2); ctx.fill();
-    }
-    // random explosions
-    if (Math.random() > 0.9) {
-      ctx.fillStyle = 'rgba(255,160,50,0.3)';
-      ctx.beginPath(); ctx.roundRect(x+2, y+2, cs-4, cs-4, 4); ctx.fill();
+    if (v === 0 && Math.random() > 0.85) {
+      bmDrawBomb(ctx, x, y, cs, 1);
     }
   }
 }

@@ -4,7 +4,7 @@
 const snakeHTML = `
 <div id="menu-backdrop" class="backdrop notebook-bg" role="dialog" aria-modal="true" style="display:none;">
   <div class="menu-win" role="document" aria-label="Difficulty Menu">
-    <button class="menu-close" onclick="showInfo()" aria-label="Info">✕</button>
+    <button class="menu-close" onclick="location.hash='home'" aria-label="Back">✕</button>
     <div class="menu-title">SNAKEGAME</div>
     <div class="menu-buttons">
       <button class="menu-button" onclick="startGame('easy')">Easy</button>
@@ -359,7 +359,9 @@ gameBackdrop.addEventListener('touchstart', (e) => {
   touchHolding = true;
 }, { passive: true });
 
+// Prevent iOS pull-to-refresh + handle swipe movement
 gameBackdrop.addEventListener('touchmove', (e) => {
+  e.preventDefault();
   if (!running || isPaused || isGameOver || !touchHolding) return;
   const dx = e.touches[0].clientX - touchStartX;
   const dy = e.touches[0].clientY - touchStartY;
@@ -376,7 +378,7 @@ gameBackdrop.addEventListener('touchmove', (e) => {
   // reset start so continued movement works
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
-}, { passive: true });
+}, { passive: false });
 
 gameBackdrop.addEventListener('touchend', (e) => {
   if (!running || isPaused || isGameOver) { touchHolding = false; return; }
