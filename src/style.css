@@ -1,5 +1,5 @@
 :root { --win-w: 1000px; --win-h: 800px; }
-html,body { height:100%; margin:0; font-family: system-ui, sans-serif; background-color:#cccccc; touch-action: manipulation; overscroll-behavior: none; }
+html,body { height:100%; margin:0; font-family: system-ui, sans-serif; background-color:#f5f0e8; touch-action: manipulation; overscroll-behavior: none; }
 .page { padding:0; }
 
 .global-logo {
@@ -32,10 +32,10 @@ html,body { height:100%; margin:0; font-family: system-ui, sans-serif; backgroun
 body::before {
   content: '';
   position: fixed;
-  top: 0;
+  top: -50vh;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 200vh;
   pointer-events: none;
   z-index: 1001;
   background-color: #f5f0e8;
@@ -54,10 +54,10 @@ body.show-notebook::before {
 body::after {
   content: '';
   position: fixed;
-  top: 0;
+  top: -50vh;
   left: 0;
   width: 60px;
-  height: 100vh;
+  height: 200vh;
   pointer-events: none;
   z-index: 1002;
   background:
