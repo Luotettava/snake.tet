@@ -65,3 +65,17 @@ window.addEventListener('hashchange', handleRoute);
 document.body.classList.add('show-notebook');
 // Initial route
 setTimeout(handleRoute, 10);
+
+// Limit scroll on game selection — can't scroll past last button
+const infoBackdrop = document.getElementById('info-backdrop');
+if (infoBackdrop) {
+  infoBackdrop.addEventListener('scroll', () => {
+    const buttons = infoBackdrop.querySelectorAll('.info-nav-button');
+    if (buttons.length === 0) return;
+    const lastBtn = buttons[buttons.length - 1];
+    const maxScroll = lastBtn.offsetTop + lastBtn.offsetHeight + 40 - infoBackdrop.clientHeight;
+    if (infoBackdrop.scrollTop > maxScroll && maxScroll > 0) {
+      infoBackdrop.scrollTop = maxScroll;
+    }
+  });
+}
